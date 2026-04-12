@@ -1,0 +1,1429 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Java Backend Interview Tracker</title>
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;600&family=IBM+Plex+Sans:wght@300;400;500;600&display=swap" rel="stylesheet"/>
+<style>
+  :root {
+    --primary: #1a1a2e;
+    --accent: #0f6fff;
+    --accent-light: #e8f1ff;
+    --success: #0d6b3c;
+    --success-bg: #e6f4ed;
+    --warning: #92560a;
+    --warning-bg: #fef3e2;
+    --danger: #c0392b;
+    --danger-bg: #fdecea;
+    --muted: #6b7280;
+    --border: #e2e8f0;
+    --surface: #f8fafc;
+    --white: #ffffff;
+    --text: #0f172a;
+    --text-secondary: #475569;
+    --font-mono: 'IBM Plex Mono', monospace;
+    --font-sans: 'IBM Plex Sans', sans-serif;
+    --radius: 8px;
+    --shadow: 0 1px 3px rgba(0,0,0,0.08), 0 1px 2px rgba(0,0,0,0.04);
+    --shadow-md: 0 4px 12px rgba(0,0,0,0.08);
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: var(--font-sans);
+    background: var(--surface);
+    color: var(--text);
+    font-size: 14px;
+    line-height: 1.6;
+  }
+  /* HEADER */
+  .app-header {
+    background: var(--primary);
+    color: #fff;
+    padding: 20px 32px;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    border-bottom: 3px solid var(--accent);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+  }
+  .app-header h1 {
+    font-family: var(--font-mono);
+    font-size: 16px;
+    font-weight: 600;
+    letter-spacing: 0.04em;
+    color: #fff;
+  }
+  .app-header .tagline {
+    font-size: 11px;
+    color: #94a3b8;
+    font-family: var(--font-mono);
+    margin-top: 2px;
+  }
+  .header-actions {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-shrink: 0;
+  }
+  .btn-reset {
+    font-size: 11px;
+    padding: 5px 12px;
+    border: 1px solid #334155;
+    background: transparent;
+    color: #94a3b8;
+    border-radius: var(--radius);
+    cursor: pointer;
+    font-family: var(--font-mono);
+    transition: all 0.15s;
+  }
+  .btn-reset:hover { border-color: var(--accent); color: #fff; }
+  /* PROGRESS DASHBOARD */
+  .dashboard {
+    padding: 24px 32px 16px;
+    background: var(--white);
+    border-bottom: 1px solid var(--border);
+  }
+  .dashboard-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+    gap: 12px;
+    margin-bottom: 20px;
+  }
+  .stat-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 14px 16px;
+    text-align: center;
+  }
+  .stat-card .stat-value {
+    font-family: var(--font-mono);
+    font-size: 28px;
+    font-weight: 600;
+    color: var(--text);
+    line-height: 1.1;
+  }
+  .stat-card .stat-label {
+    font-size: 11px;
+    color: var(--text-secondary);
+    margin-top: 4px;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+  }
+  .stat-card.accent { border-color: var(--accent); }
+  .stat-card.accent .stat-value { color: var(--accent); }
+  .stat-card.success { border-color: #22c55e; }
+  .stat-card.success .stat-value { color: var(--success); }
+  .stat-card.warning { border-color: #f59e0b; }
+  .stat-card.warning .stat-value { color: var(--warning); }
+  /* OVERALL PROGRESS BAR */
+  .overall-progress-wrap { margin-bottom: 4px; }
+  .overall-label {
+    display: flex;
+    justify-content: space-between;
+    font-size: 12px;
+    color: var(--text-secondary);
+    margin-bottom: 6px;
+    font-family: var(--font-mono);
+  }
+  .progress-bar-outer {
+    background: var(--border);
+    border-radius: 99px;
+    height: 10px;
+    overflow: hidden;
+  }
+  .progress-bar-inner {
+    height: 100%;
+    border-radius: 99px;
+    background: linear-gradient(90deg, var(--accent), #22c55e);
+    transition: width 0.4s ease;
+  }
+  /* PHASE PROGRESS MINI BARS */
+  .phase-mini-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 8px;
+    margin-top: 16px;
+  }
+  .phase-mini {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 10px 12px;
+  }
+  .phase-mini-label {
+    font-size: 11px;
+    color: var(--text-secondary);
+    font-family: var(--font-mono);
+    margin-bottom: 6px;
+    display: flex;
+    justify-content: space-between;
+  }
+  .phase-mini-bar {
+    background: var(--border);
+    border-radius: 99px;
+    height: 5px;
+    overflow: hidden;
+  }
+  .phase-mini-bar-fill {
+    height: 100%;
+    border-radius: 99px;
+    background: var(--accent);
+    transition: width 0.4s ease;
+  }
+  /* CONTROLS */
+  .controls-bar {
+    padding: 14px 32px;
+    background: var(--white);
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    flex-wrap: wrap;
+  }
+  .search-wrap {
+    position: relative;
+    flex: 1;
+    min-width: 180px;
+    max-width: 320px;
+  }
+  .search-wrap input {
+    width: 100%;
+    padding: 7px 12px 7px 32px;
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    font-size: 13px;
+    font-family: var(--font-sans);
+    background: var(--surface);
+    color: var(--text);
+    outline: none;
+    transition: border-color 0.15s;
+  }
+  .search-wrap input:focus { border-color: var(--accent); }
+  .search-icon {
+    position: absolute;
+    left: 10px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: var(--muted);
+    font-size: 13px;
+  }
+  .filter-select {
+    padding: 7px 10px;
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    font-size: 12px;
+    font-family: var(--font-sans);
+    background: var(--surface);
+    color: var(--text);
+    outline: none;
+    cursor: pointer;
+  }
+  .filter-select:focus { border-color: var(--accent); }
+  .btn-expand-all {
+    padding: 7px 14px;
+    border: 1px solid var(--border);
+    background: var(--surface);
+    color: var(--text-secondary);
+    border-radius: var(--radius);
+    font-size: 12px;
+    cursor: pointer;
+    font-family: var(--font-mono);
+    transition: all 0.15s;
+  }
+  .btn-expand-all:hover { border-color: var(--accent); color: var(--accent); }
+  .controls-right { margin-left: auto; display: flex; gap: 8px; align-items: center; }
+  .legend-dot { width: 8px; height: 8px; border-radius: 50%; display: inline-block; margin-right: 4px; }
+  .legend-item { font-size: 11px; color: var(--muted); display: flex; align-items: center; }
+  /* MAIN CONTENT */
+  .main-content { padding: 24px 32px; }
+  /* PHASE SECTION */
+  .phase-section {
+    background: var(--white);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    margin-bottom: 16px;
+    overflow: hidden;
+    box-shadow: var(--shadow);
+  }
+  .phase-header {
+    padding: 14px 20px;
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    cursor: pointer;
+    user-select: none;
+    border-bottom: 1px solid transparent;
+    transition: background 0.15s;
+  }
+  .phase-header:hover { background: var(--surface); }
+  .phase-header.open { border-bottom-color: var(--border); }
+  .phase-badge {
+    font-family: var(--font-mono);
+    font-size: 10px;
+    font-weight: 600;
+    padding: 3px 8px;
+    border-radius: 4px;
+    background: var(--accent);
+    color: #fff;
+    letter-spacing: 0.04em;
+    flex-shrink: 0;
+  }
+  .phase-title {
+    font-weight: 600;
+    font-size: 14px;
+    color: var(--text);
+    flex: 1;
+  }
+  .phase-subtitle { font-size: 11px; color: var(--muted); }
+  .phase-progress-text {
+    font-family: var(--font-mono);
+    font-size: 12px;
+    color: var(--text-secondary);
+    flex-shrink: 0;
+  }
+  .phase-chevron {
+    color: var(--muted);
+    font-size: 12px;
+    transition: transform 0.2s;
+    flex-shrink: 0;
+  }
+  .phase-chevron.open { transform: rotate(180deg); }
+  /* TABLE */
+  .topic-table { width: 100%; border-collapse: collapse; }
+  .topic-table thead th {
+    background: #f1f5f9;
+    padding: 8px 16px;
+    text-align: left;
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--text-secondary);
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    border-bottom: 1px solid var(--border);
+    font-family: var(--font-mono);
+  }
+  .topic-table thead th:first-child { width: 36px; }
+  .topic-table thead th.col-status { width: 130px; }
+  .topic-table thead th.col-priority { width: 90px; }
+  .topic-table thead th.col-date { width: 110px; }
+  .topic-row td {
+    padding: 10px 16px;
+    border-bottom: 1px solid #f1f5f9;
+    vertical-align: middle;
+    font-size: 13px;
+  }
+  .topic-row:last-child td { border-bottom: none; }
+  .topic-row:hover td { background: #fafbfc; }
+  .topic-row.completed td { background: #f0fdf4; }
+  .topic-row.in-progress td { background: #fffbeb; }
+  .topic-row.completed:hover td { background: #e6f7ef; }
+  .topic-row.in-progress:hover td { background: #fef8e7; }
+  /* HIDDEN when filtered */
+  .topic-row.hidden { display: none; }
+  /* CHECKBOX */
+  .topic-checkbox {
+    width: 16px; height: 16px;
+    cursor: pointer;
+    accent-color: var(--accent);
+  }
+  /* STATUS BADGE */
+  .status-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    font-size: 11px;
+    font-weight: 500;
+    padding: 3px 8px;
+    border-radius: 4px;
+    font-family: var(--font-mono);
+    cursor: pointer;
+    border: none;
+    outline: none;
+    transition: opacity 0.15s;
+    white-space: nowrap;
+  }
+  .status-badge:hover { opacity: 0.8; }
+  .status-not-started { background: #f1f5f9; color: var(--text-secondary); }
+  .status-in-progress { background: var(--warning-bg); color: var(--warning); }
+  .status-completed { background: var(--success-bg); color: var(--success); }
+  .status-needs-review { background: #fce8f3; color: #9b1b6a; }
+  /* PRIORITY */
+  .priority-badge {
+    font-size: 10px;
+    font-weight: 600;
+    padding: 2px 6px;
+    border-radius: 3px;
+    font-family: var(--font-mono);
+    letter-spacing: 0.04em;
+  }
+  .priority-critical { background: #fee2e2; color: #b91c1c; }
+  .priority-high { background: #fef3e2; color: #b45309; }
+  .priority-medium { background: var(--accent-light); color: #1d4ed8; }
+  .priority-low { background: #f0fdf4; color: #15803d; }
+  /* TOPIC NAME */
+  .topic-name { font-weight: 500; color: var(--text); }
+  .topic-desc { font-size: 11px; color: var(--muted); margin-top: 2px; }
+  /* DATE */
+  .date-cell { font-size: 11px; color: var(--muted); font-family: var(--font-mono); }
+  /* NOTES */
+  .notes-btn {
+    background: none;
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    padding: 2px 8px;
+    font-size: 11px;
+    color: var(--muted);
+    cursor: pointer;
+    font-family: var(--font-sans);
+    transition: all 0.15s;
+  }
+  .notes-btn:hover { border-color: var(--accent); color: var(--accent); }
+  .notes-btn.has-note { border-color: #a855f7; color: #7c3aed; background: #faf5ff; }
+  /* SUBGROUP HEADER */
+  .subgroup-row td {
+    padding: 8px 16px;
+    background: #f8fafc;
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--muted);
+    text-transform: uppercase;
+    letter-spacing: 0.07em;
+    font-family: var(--font-mono);
+    border-bottom: 1px solid var(--border);
+  }
+  /* MODAL */
+  .modal-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(15,23,42,0.5);
+    z-index: 1000;
+    align-items: center;
+    justify-content: center;
+  }
+  .modal-overlay.open { display: flex; }
+  .modal-box {
+    background: var(--white);
+    border-radius: 12px;
+    padding: 28px;
+    width: 480px;
+    max-width: 95vw;
+    box-shadow: var(--shadow-md);
+    position: relative;
+  }
+  .modal-title {
+    font-weight: 600;
+    font-size: 15px;
+    margin-bottom: 4px;
+    color: var(--text);
+  }
+  .modal-subtitle { font-size: 12px; color: var(--muted); margin-bottom: 16px; }
+  .modal-textarea {
+    width: 100%;
+    height: 120px;
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 10px 12px;
+    font-size: 13px;
+    font-family: var(--font-sans);
+    resize: vertical;
+    outline: none;
+    color: var(--text);
+    transition: border-color 0.15s;
+  }
+  .modal-textarea:focus { border-color: var(--accent); }
+  .modal-actions { display: flex; gap: 8px; margin-top: 16px; justify-content: flex-end; }
+  .btn-save {
+    padding: 8px 20px;
+    background: var(--accent);
+    color: #fff;
+    border: none;
+    border-radius: var(--radius);
+    font-size: 13px;
+    font-family: var(--font-sans);
+    cursor: pointer;
+    font-weight: 500;
+  }
+  .btn-save:hover { opacity: 0.9; }
+  .btn-cancel {
+    padding: 8px 16px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    color: var(--text-secondary);
+    border-radius: var(--radius);
+    font-size: 13px;
+    font-family: var(--font-sans);
+    cursor: pointer;
+  }
+  .btn-close-modal {
+    position: absolute;
+    top: 14px; right: 16px;
+    background: none;
+    border: none;
+    font-size: 18px;
+    color: var(--muted);
+    cursor: pointer;
+    line-height: 1;
+  }
+  /* ASSESSMENT PANEL */
+  .assessment-bar {
+    padding: 12px 32px;
+    background: linear-gradient(90deg, #1a1a2e, #162040);
+    border-bottom: 1px solid #334155;
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    flex-wrap: wrap;
+  }
+  .assessment-label { font-size: 11px; color: #64748b; font-family: var(--font-mono); }
+  .assessment-score {
+    font-family: var(--font-mono);
+    font-size: 22px;
+    font-weight: 600;
+    color: #fff;
+  }
+  .assessment-tier {
+    font-family: var(--font-mono);
+    font-size: 11px;
+    padding: 4px 10px;
+    border-radius: 4px;
+    font-weight: 600;
+    letter-spacing: 0.04em;
+  }
+  .tier-beginner { background: #fee2e2; color: #b91c1c; }
+  .tier-intermediate { background: #fef3e2; color: #b45309; }
+  .tier-ready { background: #e6f4ed; color: #0d6b3c; }
+  .tier-expert { background: #e0e7ff; color: #4338ca; }
+  .assessment-breakdown {
+    display: flex; gap: 14px; flex-wrap: wrap; flex: 1; justify-content: flex-end;
+  }
+  .pillar-score { font-size: 11px; color: #94a3b8; font-family: var(--font-mono); text-align: center; }
+  .pillar-score span { display: block; font-size: 14px; font-weight: 600; color: #e2e8f0; }
+  /* EMPTY STATE */
+  .no-results { text-align: center; padding: 40px; color: var(--muted); font-size: 13px; }
+  /* RESPONSIVE */
+  @media (max-width: 768px) {
+    .app-header { padding: 14px 16px; }
+    .dashboard, .controls-bar, .main-content { padding-left: 16px; padding-right: 16px; }
+    .assessment-bar { padding: 12px 16px; }
+    .assessment-breakdown { display: none; }
+    .topic-table thead th.col-date,
+    .topic-row td:nth-child(6) { display: none; }
+    .topic-table thead th.col-priority,
+    .topic-row td:nth-child(4) { display: none; }
+  }
+</style>
+</head>
+<body>
+
+<!-- HEADER -->
+<div class="app-header">
+  <div>
+    <h1>☕ Java Backend Interview Tracker</h1>
+    <div class="tagline">90%+ Probability Roadmap · Track · Assess · Crack</div>
+  </div>
+  <div class="header-actions">
+    <button class="btn-reset" onclick="exportData()">⬇ Export</button>
+    <button class="btn-reset" onclick="confirmReset()">↺ Reset All</button>
+  </div>
+</div>
+
+<!-- ASSESSMENT BAR -->
+<div class="assessment-bar">
+  <div>
+    <div class="assessment-label">INTERVIEW READINESS SCORE</div>
+    <div class="assessment-score" id="readinessScore">0%</div>
+  </div>
+  <div id="tierBadge" class="assessment-tier tier-beginner">BEGINNER</div>
+  <div class="assessment-breakdown" id="pillarBreakdown"></div>
+</div>
+
+<!-- DASHBOARD -->
+<div class="dashboard">
+  <div class="dashboard-grid">
+    <div class="stat-card accent">
+      <div class="stat-value" id="statTotal">0</div>
+      <div class="stat-label">Total Topics</div>
+    </div>
+    <div class="stat-card success">
+      <div class="stat-value" id="statCompleted">0</div>
+      <div class="stat-label">Completed</div>
+    </div>
+    <div class="stat-card warning">
+      <div class="stat-value" id="statInProgress">0</div>
+      <div class="stat-label">In Progress</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-value" id="statPending">0</div>
+      <div class="stat-label">Not Started</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-value" id="statNeedsReview">0</div>
+      <div class="stat-label">Needs Review</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-value" id="statDays">0</div>
+      <div class="stat-label">Days Active</div>
+    </div>
+  </div>
+  <div class="overall-progress-wrap">
+    <div class="overall-label">
+      <span>Overall Progress</span>
+      <span id="overallPct">0%</span>
+    </div>
+    <div class="progress-bar-outer">
+      <div class="progress-bar-inner" id="overallBar" style="width:0%"></div>
+    </div>
+  </div>
+  <div class="phase-mini-grid" id="phaseMiniGrid"></div>
+</div>
+
+<!-- CONTROLS -->
+<div class="controls-bar">
+  <div class="search-wrap">
+    <span class="search-icon">🔍</span>
+    <input type="text" id="searchInput" placeholder="Search topics..." oninput="applyFilters()"/>
+  </div>
+  <select class="filter-select" id="filterStatus" onchange="applyFilters()">
+    <option value="all">All Statuses</option>
+    <option value="not-started">Not Started</option>
+    <option value="in-progress">In Progress</option>
+    <option value="completed">Completed</option>
+    <option value="needs-review">Needs Review</option>
+  </select>
+  <select class="filter-select" id="filterPriority" onchange="applyFilters()">
+    <option value="all">All Priorities</option>
+    <option value="critical">Critical</option>
+    <option value="high">High</option>
+    <option value="medium">Medium</option>
+    <option value="low">Low</option>
+  </select>
+  <button class="btn-expand-all" onclick="toggleAllPhases()">Expand All</button>
+  <div class="controls-right">
+    <span class="legend-item"><span class="legend-dot" style="background:#22c55e"></span>Done</span>
+    <span class="legend-item"><span class="legend-dot" style="background:#f59e0b"></span>WIP</span>
+    <span class="legend-item"><span class="legend-dot" style="background:#a855f7"></span>Review</span>
+  </div>
+</div>
+
+<!-- MAIN CONTENT -->
+<div class="main-content" id="mainContent"></div>
+
+<!-- NOTES MODAL -->
+<div class="modal-overlay" id="notesModal">
+  <div class="modal-box">
+    <button class="btn-close-modal" onclick="closeNotes()">×</button>
+    <div class="modal-title" id="modalTitle">Add Notes</div>
+    <div class="modal-subtitle" id="modalSubtitle">Topic notes</div>
+    <textarea class="modal-textarea" id="modalTextarea" placeholder="Write your notes, doubts, resources, or reminders here..."></textarea>
+    <div class="modal-actions">
+      <button class="btn-cancel" onclick="closeNotes()">Cancel</button>
+      <button class="btn-save" onclick="saveNotes()">Save Notes</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ─── DATA DEFINITIONS ───────────────────────────────────────────────────────
+const PHASES = [
+  {
+    id: 'p1', label: 'Phase 1', title: 'DSA & Problem Solving', subtitle: '8 Weeks · 180–220 Problems Target',
+    weight: 25,
+    groups: [
+      {
+        name: 'Week 1 — Arrays & Fundamentals',
+        topics: [
+          { id: 't1', name: 'Prefix Sum & Suffix Sum', desc: 'Range sum queries, subarray sum problems', priority: 'critical' },
+          { id: 't2', name: 'Contribution Technique', desc: 'Element contribution to total answer', priority: 'high' },
+          { id: 't3', name: 'Carry Forward', desc: 'Running state across iterations', priority: 'medium' },
+          { id: 't4', name: 'Sliding Window — Fixed Size', desc: 'Max/min in subarray of size k', priority: 'critical' },
+          { id: 't5', name: 'Two Pointers — Left Right', desc: 'Sorted array pair problems', priority: 'critical' },
+          { id: 't6', name: 'Dutch National Flag', desc: '3-way partition, sort 0s 1s 2s', priority: 'high' },
+          { id: 't7', name: 'Frequency Counting', desc: 'HashMap for element frequencies', priority: 'high' },
+          { id: 't8', name: 'Time & Space Complexity Analysis', desc: 'Big-O, Omega, Theta notation', priority: 'critical' },
+        ]
+      },
+      {
+        name: 'Week 2 — Hashing, Strings & Sorting',
+        topics: [
+          { id: 't9', name: 'HashMap Internals', desc: 'Buckets, load factor, collision, treeification', priority: 'critical' },
+          { id: 't10', name: 'HashSet Applications', desc: 'Duplicate detection, set operations', priority: 'high' },
+          { id: 't11', name: 'Anagram Detection & String Hashing', desc: 'Character frequency maps', priority: 'high' },
+          { id: 't12', name: 'String Manipulation', desc: 'Palindromes, compression, KMP basics', priority: 'high' },
+          { id: 't13', name: 'Custom Sorting with Comparator', desc: 'Multi-field sorting, lambda comparators', priority: 'critical' },
+          { id: 't14', name: 'Merge Sort Logic', desc: 'Divide and conquer, stable sort', priority: 'high' },
+          { id: 't15', name: 'Counting Sort & Radix Sort', desc: 'Linear time sorting for bounded input', priority: 'medium' },
+        ]
+      },
+      {
+        name: 'Week 3 — Binary Search',
+        topics: [
+          { id: 't16', name: 'Classic Binary Search', desc: 'Standard sorted array search', priority: 'critical' },
+          { id: 't17', name: 'Binary Search on Answer', desc: 'Minimize maximum, maximize minimum', priority: 'critical' },
+          { id: 't18', name: 'First & Last Position', desc: 'Lower bound, upper bound', priority: 'critical' },
+          { id: 't19', name: 'Rotated Sorted Array', desc: 'Search in rotated + find pivot', priority: 'high' },
+          { id: 't20', name: 'Search in 2D Matrix', desc: 'Row-column binary search', priority: 'high' },
+          { id: 't21', name: 'Peak Element', desc: 'Local maxima in unsorted array', priority: 'high' },
+          { id: 't22', name: 'Aggressive Cows / Allocate Books', desc: 'Binary search on answer template', priority: 'critical' },
+        ]
+      },
+      {
+        name: 'Week 4 — Linked Lists, Stacks & Queues',
+        topics: [
+          { id: 't23', name: 'Linked List Reversal', desc: 'Iterative and recursive reversal', priority: 'critical' },
+          { id: 't24', name: 'Cycle Detection (Floyd\'s)', desc: 'Fast-slow pointer, cycle length', priority: 'critical' },
+          { id: 't25', name: 'Merge Two Sorted Lists', desc: 'Pointer manipulation', priority: 'high' },
+          { id: 't26', name: 'LRU Cache from Scratch', desc: 'HashMap + Doubly Linked List — must master', priority: 'critical' },
+          { id: 't27', name: 'Stack Applications', desc: 'Valid parentheses, daily temperatures', priority: 'critical' },
+          { id: 't28', name: 'Next Greater Element', desc: 'Monotonic stack pattern', priority: 'high' },
+          { id: 't29', name: 'Largest Rectangle in Histogram', desc: 'Monotonic stack classic', priority: 'high' },
+          { id: 't30', name: 'Sliding Window Maximum (Deque)', desc: 'Deque-based O(n) solution', priority: 'high' },
+        ]
+      },
+      {
+        name: 'Week 5 — Trees & Heaps',
+        topics: [
+          { id: 't31', name: 'Tree BFS (Level Order)', desc: 'Queue-based traversal, zigzag', priority: 'critical' },
+          { id: 't32', name: 'Tree DFS (Pre/In/Post)', desc: 'Recursive and iterative', priority: 'critical' },
+          { id: 't33', name: 'Diameter of Binary Tree', desc: 'Max path through or not through root', priority: 'high' },
+          { id: 't34', name: 'Lowest Common Ancestor', desc: 'LCA for binary tree and BST', priority: 'critical' },
+          { id: 't35', name: 'Serialize & Deserialize Tree', desc: 'BFS and DFS based approaches', priority: 'high' },
+          { id: 't36', name: 'BST Operations', desc: 'Insert, delete, search, validate', priority: 'high' },
+          { id: 't37', name: 'Kth Smallest in BST', desc: 'Inorder traversal property', priority: 'high' },
+          { id: 't38', name: 'Heap Operations & PriorityQueue', desc: 'Min-heap, max-heap, heapify', priority: 'critical' },
+          { id: 't39', name: 'Top K Frequent Elements', desc: 'Heap-based, bucket sort approach', priority: 'critical' },
+          { id: 't40', name: 'Merge K Sorted Lists', desc: 'PriorityQueue pattern', priority: 'high' },
+          { id: 't41', name: 'Find Median from Data Stream', desc: 'Two heaps pattern', priority: 'high' },
+        ]
+      },
+      {
+        name: 'Week 6 — Graphs',
+        topics: [
+          { id: 't42', name: 'Graph BFS & DFS', desc: 'Adjacency list, matrix representations', priority: 'critical' },
+          { id: 't43', name: 'Cycle Detection', desc: 'Directed (DFS color) and undirected (parent tracking)', priority: 'critical' },
+          { id: 't44', name: 'Topological Sort', desc: 'Kahn\'s BFS + DFS-based approach', priority: 'critical' },
+          { id: 't45', name: 'Dijkstra\'s Algorithm', desc: 'Shortest path with priority queue', priority: 'high' },
+          { id: 't46', name: 'Union-Find / Disjoint Set', desc: 'Path compression, union by rank', priority: 'high' },
+          { id: 't47', name: 'Number of Islands', desc: 'BFS/DFS on grid', priority: 'critical' },
+          { id: 't48', name: 'Course Schedule', desc: 'Topological sort application', priority: 'high' },
+          { id: 't49', name: 'Word Ladder', desc: 'BFS shortest transformation', priority: 'high' },
+        ]
+      },
+      {
+        name: 'Week 7 — Recursion, Backtracking & Trie',
+        topics: [
+          { id: 't50', name: 'Recursion Tree Visualization', desc: 'Draw before coding every problem', priority: 'critical' },
+          { id: 't51', name: 'Subsets & Power Set', desc: 'Include/exclude pattern', priority: 'high' },
+          { id: 't52', name: 'Permutations & Combinations', desc: 'With and without duplicates', priority: 'critical' },
+          { id: 't53', name: 'N-Queens', desc: 'Classic backtracking', priority: 'high' },
+          { id: 't54', name: 'Sudoku Solver', desc: 'Constraint propagation backtracking', priority: 'medium' },
+          { id: 't55', name: 'Word Search on Grid', desc: 'DFS + visited tracking', priority: 'high' },
+          { id: 't56', name: 'Trie — Insert, Search, StartsWith', desc: 'Prefix tree implementation', priority: 'high' },
+          { id: 't57', name: 'Word Break using Trie', desc: 'DP + Trie combination', priority: 'medium' },
+        ]
+      },
+      {
+        name: 'Week 8 — Dynamic Programming',
+        topics: [
+          { id: 't58', name: 'Memoization vs Tabulation', desc: 'Top-down vs bottom-up, space optimization', priority: 'critical' },
+          { id: 't59', name: '0/1 Knapsack & Variants', desc: 'Subset sum, equal partition, target sum', priority: 'critical' },
+          { id: 't60', name: 'Unbounded Knapsack', desc: 'Coin change, rod cutting', priority: 'critical' },
+          { id: 't61', name: 'Longest Common Subsequence', desc: 'LCS, edit distance, shortest common supersequence', priority: 'critical' },
+          { id: 't62', name: 'Longest Increasing Subsequence', desc: 'O(n²) and O(n log n) approaches', priority: 'high' },
+          { id: 't63', name: 'Matrix DP', desc: 'Unique paths, minimum path sum, maximal square', priority: 'high' },
+          { id: 't64', name: 'Interval DP', desc: 'Burst balloons, palindrome partitioning', priority: 'high' },
+          { id: 't65', name: 'DP on Trees', desc: 'House robber on tree, diameter', priority: 'medium' },
+          { id: 't66', name: 'Bit Manipulation Basics', desc: 'XOR tricks, power of 2, count set bits', priority: 'high' },
+        ]
+      }
+    ]
+  },
+  {
+    id: 'p2', label: 'Phase 2', title: 'Core Java Mastery', subtitle: '4 Weeks · Deep Dive Internals',
+    weight: 20,
+    groups: [
+      {
+        name: 'Week 9 — OOPs Deep Dive & Fundamentals',
+        topics: [
+          { id: 't67', name: 'OOPs — 4 Pillars with Scenarios', desc: 'Abstraction, encapsulation, polymorphism, inheritance edge cases', priority: 'critical' },
+          { id: 't68', name: 'Method Overloading vs Overriding Rules', desc: 'Return type covariance, exception narrowing, static dispatch', priority: 'critical' },
+          { id: 't69', name: 'Abstract Class vs Interface', desc: 'When to use which, default methods, diamond problem', priority: 'critical' },
+          { id: 't70', name: 'Constructor Chaining (this & super)', desc: 'Order of execution, super() first rule', priority: 'high' },
+          { id: 't71', name: 'Immutable Class Design', desc: 'Why String is immutable, how to create immutable classes', priority: 'critical' },
+          { id: 't72', name: 'equals() & hashCode() Contract', desc: 'What breaks when you override one without the other', priority: 'critical' },
+          { id: 't73', name: 'Comparable vs Comparator', desc: 'Natural ordering vs custom ordering', priority: 'high' },
+          { id: 't74', name: 'Exception Handling Depth', desc: 'Checked vs unchecked, try-with-resources, exception chaining', priority: 'critical' },
+          { id: 't75', name: 'Autoboxing Pitfalls', desc: 'Integer cache -128 to 127, == vs equals trap', priority: 'high' },
+          { id: 't76', name: 'Serialization & transient', desc: 'serialVersionUID, Externalizable, security risks', priority: 'medium' },
+        ]
+      },
+      {
+        name: 'Week 10 — Collections Internals',
+        topics: [
+          { id: 't77', name: 'HashMap Internals (Full Depth)', desc: 'Bucket array, hash collision, linked list to tree at 8, rehashing', priority: 'critical' },
+          { id: 't78', name: 'LinkedHashMap — LRU Connection', desc: 'Doubly linked list overlaid, access-order mode', priority: 'critical' },
+          { id: 't79', name: 'TreeMap & NavigableMap', desc: 'Red-Black tree, floorKey, ceilingKey, headMap, tailMap', priority: 'high' },
+          { id: 't80', name: 'ConcurrentHashMap Internals', desc: 'Java 7 segment locking vs Java 8 CAS on bucket head', priority: 'critical' },
+          { id: 't81', name: 'ArrayList vs LinkedList vs ArrayDeque', desc: 'Internal structures, time complexities, when to use each', priority: 'critical' },
+          { id: 't82', name: 'PriorityQueue Internals', desc: 'Backed by array heap, heapify on poll/offer', priority: 'high' },
+          { id: 't83', name: 'Fail-fast vs Fail-safe Iterators', desc: 'ConcurrentModificationException, CopyOnWriteArrayList', priority: 'high' },
+          { id: 't84', name: 'Collections Utility Methods', desc: 'Collections.sort, binarySearch, unmodifiableList, synchronizedList', priority: 'medium' },
+        ]
+      },
+      {
+        name: 'Week 11 — Concurrency (Most Differentiating)',
+        topics: [
+          { id: 't85', name: 'Thread Lifecycle & Creation', desc: 'Thread vs Runnable vs Callable, daemon threads, lifecycle states', priority: 'critical' },
+          { id: 't86', name: 'synchronized — All 3 Forms', desc: 'Instance method, static method, block — what is the monitor object', priority: 'critical' },
+          { id: 't87', name: 'volatile Keyword', desc: 'Visibility guarantee, NOT atomicity, double-checked locking pattern', priority: 'critical' },
+          { id: 't88', name: 'ReentrantLock & ReadWriteLock', desc: 'tryLock, lockInterruptibly, fairness, when over synchronized', priority: 'critical' },
+          { id: 't89', name: 'Atomic Classes & CAS', desc: 'AtomicInteger, AtomicReference, ABA problem', priority: 'high' },
+          { id: 't90', name: 'Deadlock — 4 Conditions & Prevention', desc: 'Detection via thread dumps, prevention via lock ordering', priority: 'critical' },
+          { id: 't91', name: 'ThreadPoolExecutor (All 5 Params)', desc: 'coreSize, maxSize, keepAlive, queue, rejectionHandler', priority: 'critical' },
+          { id: 't92', name: 'CompletableFuture', desc: 'thenApply vs thenCompose, allOf, anyOf, exceptionally, handle', priority: 'critical' },
+          { id: 't93', name: 'CountDownLatch, CyclicBarrier, Semaphore', desc: 'Use cases, differences, Phaser as flexible option', priority: 'high' },
+          { id: 't94', name: 'Java Memory Model & Happens-Before', desc: 'Why it matters, how volatile/synchronized establish ordering', priority: 'high' },
+          { id: 't95', name: 'ThreadLocal', desc: 'Per-thread data, memory leak risk in thread pools', priority: 'high' },
+        ]
+      },
+      {
+        name: 'Week 12 — JVM, Generics, Streams & Modern Java',
+        topics: [
+          { id: 't96', name: 'JVM Architecture', desc: 'Class loading hierarchy, runtime data areas, JIT compilation', priority: 'critical' },
+          { id: 't97', name: 'Garbage Collection Internals', desc: 'Generational GC, Young/Old gen, G1GC regions, GC tuning flags', priority: 'critical' },
+          { id: 't98', name: 'Reference Types', desc: 'Strong, soft, weak, phantom — use cases for each', priority: 'high' },
+          { id: 't99', name: 'Generics & Type Erasure', desc: 'PECS principle, bounded wildcards, why generics don\'t exist at runtime', priority: 'high' },
+          { id: 't100', name: 'Streams — Internals & Patterns', desc: 'Laziness, intermediate vs terminal, parallel stream pitfalls', priority: 'critical' },
+          { id: 't101', name: 'Collectors — All Key Ones', desc: 'groupingBy, partitioningBy, toMap, joining, custom collector', priority: 'high' },
+          { id: 't102', name: 'Optional — Correct Usage', desc: 'Never use get() alone, orElseGet vs orElse, map, flatMap', priority: 'high' },
+          { id: 't103', name: 'Java 8–17 Modern Features', desc: 'Records, sealed classes, pattern matching instanceof, switch expressions', priority: 'high' },
+          { id: 't104', name: 'Method References — 4 Types', desc: 'Static, instance (specific/arbitrary), constructor reference', priority: 'medium' },
+        ]
+      }
+    ]
+  },
+  {
+    id: 'p3', label: 'Phase 3', title: 'Spring Boot & Backend', subtitle: '4 Weeks · Production-Grade Knowledge',
+    weight: 20,
+    groups: [
+      {
+        name: 'Week 13 — Spring Core & Boot',
+        topics: [
+          { id: 't105', name: 'IoC Container & Bean Lifecycle', desc: 'BeanFactory vs AppContext, instantiation → injection → PostConstruct → destroy', priority: 'critical' },
+          { id: 't106', name: 'Dependency Injection Types', desc: 'Constructor vs setter vs field injection, why constructor is best', priority: 'critical' },
+          { id: 't107', name: 'Bean Scopes', desc: 'Singleton, Prototype, Request, Session — injection scope mismatch problem', priority: 'critical' },
+          { id: 't108', name: 'Annotations Deep Dive', desc: '@Component vs @Service vs @Repository, @Autowired resolution order', priority: 'critical' },
+          { id: 't109', name: 'Spring Boot Auto-Configuration', desc: 'How @SpringBootApplication works, spring.factories, @Conditional annotations', priority: 'critical' },
+          { id: 't110', name: 'Profiles & External Config', desc: '@Profile, application-{env}.yml, @Value vs @ConfigurationProperties', priority: 'high' },
+          { id: 't111', name: 'Spring Events', desc: 'ApplicationEventPublisher, @EventListener, @Async events', priority: 'medium' },
+        ]
+      },
+      {
+        name: 'Week 14 — Spring MVC & REST',
+        topics: [
+          { id: 't112', name: 'DispatcherServlet Request Lifecycle', desc: 'HandlerMapping → HandlerAdapter → ViewResolver flow', priority: 'high' },
+          { id: 't113', name: 'REST Best Practices', desc: 'HTTP methods, status codes, @PathVariable vs @RequestParam vs @RequestBody', priority: 'critical' },
+          { id: 't114', name: 'Exception Handling — @ControllerAdvice', desc: '@ExceptionHandler, ResponseEntityExceptionHandler, ProblemDetail RFC 7807', priority: 'critical' },
+          { id: 't115', name: 'Validation — @Valid & Custom', desc: '@NotNull, @Size, @Pattern, custom constraint annotations', priority: 'high' },
+          { id: 't116', name: 'Filters vs Interceptors', desc: 'Servlet-level vs Spring-level, execution order, use cases', priority: 'high' },
+          { id: 't117', name: '@Transactional Deep Dive', desc: 'Propagation types, isolation levels, self-invocation problem, rollbackFor', priority: 'critical' },
+          { id: 't118', name: 'Spring AOP', desc: 'Aspect, pointcut, advice types, proxy-based weaving limitations', priority: 'high' },
+        ]
+      },
+      {
+        name: 'Week 15 — Data Layer & Databases',
+        topics: [
+          { id: 't119', name: 'JPA Entity Lifecycle', desc: 'Transient, managed, detached, removed — persistence context as L1 cache', priority: 'critical' },
+          { id: 't120', name: 'Entity Relationships', desc: '@OneToMany, @ManyToMany, CascadeType, mappedBy, @JoinColumn', priority: 'critical' },
+          { id: 't121', name: 'Fetch Types & N+1 Problem', desc: 'LAZY vs EAGER, JOIN FETCH, @EntityGraph, @BatchSize solutions', priority: 'critical' },
+          { id: 't122', name: 'Database Migrations (Flyway)', desc: 'Versioned & repeatable migrations, V1__init.sql convention', priority: 'critical' },
+          { id: 't123', name: 'HikariCP Connection Pool', desc: 'maximumPoolSize, connectionTimeout, maxLifetime tuning', priority: 'high' },
+          { id: 't124', name: 'SQL — Joins & Window Functions', desc: 'Self join, ROW_NUMBER, RANK, DENSE_RANK, LAG, LEAD, PARTITION BY', priority: 'critical' },
+          { id: 't125', name: 'SQL — Indexes In Depth', desc: 'B-tree structure, composite index order, covering index, EXPLAIN plan', priority: 'critical' },
+          { id: 't126', name: 'SQL — Transaction Isolation Levels', desc: 'Read Uncommitted, Read Committed, Repeatable Read, Serializable — anomalies', priority: 'critical' },
+          { id: 't127', name: 'Redis Data Structures', desc: 'String, List, Hash, Set, Sorted Set — use cases for each, TTL, persistence', priority: 'high' },
+          { id: 't128', name: 'NoSQL — Cassandra Basics', desc: 'Partition key, clustering key, wide row model, when to choose Cassandra', priority: 'medium' },
+          { id: 't129', name: 'MongoDB Aggregation Pipeline', desc: 'Document model, $match, $group, $lookup, indexing', priority: 'medium' },
+        ]
+      },
+      {
+        name: 'Week 16 — Security, Testing & Microservices',
+        topics: [
+          { id: 't130', name: 'Spring Security & JWT', desc: 'SecurityFilterChain, JWT header.payload.signature, validation, storage', priority: 'critical' },
+          { id: 't131', name: 'OAuth2 Basics', desc: 'Authorization code flow, resource server, client credentials', priority: 'high' },
+          { id: 't132', name: 'Unit Testing — JUnit 5 & Mockito', desc: '@ParameterizedTest, ArgumentCaptor, verify(), assertThrows', priority: 'critical' },
+          { id: 't133', name: 'Integration Testing & MockMvc', desc: '@SpringBootTest, @AutoConfigureMockMvc, @DataJpaTest', priority: 'high' },
+          { id: 't134', name: 'Testcontainers', desc: 'Real Docker DB/Redis in tests, @Testcontainers, @Container', priority: 'high' },
+          { id: 't135', name: 'Circuit Breaker — Resilience4j', desc: 'Closed/Open/Half-Open states, fallback, rate limiter, bulkhead', priority: 'high' },
+          { id: 't136', name: 'Kafka Internals', desc: 'Topic, partition, consumer group, offset, at-least-once vs exactly-once', priority: 'critical' },
+          { id: 't137', name: 'SAGA & CQRS Patterns', desc: 'Choreography vs orchestration, read/write model separation', priority: 'high' },
+          { id: 't138', name: 'Distributed Tracing', desc: 'Micrometer + Zipkin, trace ID, span ID propagation', priority: 'medium' },
+        ]
+      }
+    ]
+  },
+  {
+    id: 'p4', label: 'Phase 4', title: 'Low Level Design', subtitle: '3 Weeks · Code Under Pressure',
+    weight: 15,
+    groups: [
+      {
+        name: 'Week 17 — SOLID & Design Patterns',
+        topics: [
+          { id: 't139', name: 'SRP — Single Responsibility', desc: 'Identify violations, refactor to separate concerns', priority: 'critical' },
+          { id: 't140', name: 'OCP — Open/Closed Principle', desc: 'Open for extension, closed for modification — Strategy pattern connection', priority: 'critical' },
+          { id: 't141', name: 'LSP — Liskov Substitution', desc: 'Square-Rectangle violation, behavioral subtyping', priority: 'high' },
+          { id: 't142', name: 'ISP — Interface Segregation', desc: 'Fat interfaces vs focused interfaces', priority: 'high' },
+          { id: 't143', name: 'DIP — Dependency Inversion', desc: 'Depend on abstractions, inject via constructor', priority: 'critical' },
+          { id: 't144', name: 'Singleton Pattern (Thread-Safe)', desc: 'Double-checked locking + volatile, enum-based singleton', priority: 'critical' },
+          { id: 't145', name: 'Factory & Abstract Factory', desc: 'Factory method vs abstract factory, when to use each', priority: 'high' },
+          { id: 't146', name: 'Builder Pattern', desc: 'Fluent API, telescoping constructor problem, immutable builders', priority: 'critical' },
+          { id: 't147', name: 'Strategy Pattern', desc: 'Algorithm family, interchangeable at runtime, payment/sorting strategies', priority: 'critical' },
+          { id: 't148', name: 'Observer Pattern', desc: 'One-to-many, event listeners, Spring ApplicationEvent connection', priority: 'high' },
+          { id: 't149', name: 'Decorator Pattern', desc: 'Dynamic behavior addition, Java I/O streams as examples', priority: 'high' },
+          { id: 't150', name: 'Proxy Pattern', desc: 'Virtual, protection, logging proxy — Spring AOP connection', priority: 'high' },
+          { id: 't151', name: 'Command Pattern', desc: 'Encapsulate request as object, undo/redo support', priority: 'medium' },
+          { id: 't152', name: 'Template Method Pattern', desc: 'Skeleton in base class, subclasses fill steps', priority: 'medium' },
+          { id: 't153', name: 'Chain of Responsibility', desc: 'Servlet filters, middleware pipeline', priority: 'medium' },
+          { id: 't154', name: 'State Pattern', desc: 'Behavior changes with state, vending machine, traffic light', priority: 'medium' },
+        ]
+      },
+      {
+        name: 'Week 18 & 19 — LLD Problem Practice',
+        topics: [
+          { id: 't155', name: 'LRU Cache (HashMap + DLL)', desc: 'MUST master — most common LLD problem, also LFU as follow-up', priority: 'critical' },
+          { id: 't156', name: 'Parking Lot System', desc: 'Multi-level, vehicle types, ticket, pricing strategy pattern', priority: 'critical' },
+          { id: 't157', name: 'BookMyShow — Movie Booking', desc: 'Show, seat reservation, concurrency handling', priority: 'critical' },
+          { id: 't158', name: 'Elevator System', desc: 'Multiple elevators, scheduling algorithm, state machine', priority: 'high' },
+          { id: 't159', name: 'Food Delivery System', desc: 'Restaurant, order, delivery assignment, real-time tracking', priority: 'high' },
+          { id: 't160', name: 'Splitwise / Bill Splitter', desc: 'Expense splitting, settle-up minimization algorithm', priority: 'high' },
+          { id: 't161', name: 'Logger Framework', desc: 'Log levels, appenders, formatters — Strategy + Observer', priority: 'high' },
+          { id: 't162', name: 'ATM Machine', desc: 'State machine approach, card validation, transaction', priority: 'high' },
+          { id: 't163', name: 'Library Management System', desc: 'Book catalog, member, borrowing, fine calculation', priority: 'medium' },
+          { id: 't164', name: 'Notification System', desc: 'Multiple channels, template engine, retry logic, priority', priority: 'medium' },
+        ]
+      }
+    ]
+  },
+  {
+    id: 'p5', label: 'Phase 5', title: 'System Design', subtitle: '4 Weeks · Distributed Systems Mastery',
+    weight: 15,
+    groups: [
+      {
+        name: 'Week 20 — Distributed Systems Fundamentals',
+        topics: [
+          { id: 't165', name: 'Scalability — Horizontal vs Vertical', desc: 'Stateless services, session management in horizontal scaling', priority: 'critical' },
+          { id: 't166', name: 'Load Balancing', desc: 'L4 vs L7, algorithms, health checks, sticky sessions', priority: 'critical' },
+          { id: 't167', name: 'Caching Strategies', desc: 'Cache-aside, read/write-through, eviction, stampede, invalidation', priority: 'critical' },
+          { id: 't168', name: 'Database Scaling', desc: 'Read replicas, master-slave, sharding strategies, hotspot problem', priority: 'critical' },
+          { id: 't169', name: 'CAP Theorem & PACELC', desc: 'CP vs AP systems with real database examples, PACELC extension', priority: 'critical' },
+          { id: 't170', name: 'Consistent Hashing', desc: 'Virtual nodes, minimal redistribution, Cassandra/Dynamo use', priority: 'critical' },
+          { id: 't171', name: 'Rate Limiting Algorithms', desc: 'Token bucket, leaky bucket, fixed/sliding window, comparison', priority: 'critical' },
+          { id: 't172', name: 'Message Queues — Kafka vs RabbitMQ', desc: 'When to use each, Kafka internals, delivery guarantees', priority: 'critical' },
+          { id: 't173', name: 'CDN & Edge Caching', desc: 'Edge servers, origin pull, cache invalidation, use cases', priority: 'high' },
+          { id: 't174', name: 'API Gateway', desc: 'Routing, rate limiting, auth, SSL termination, service discovery', priority: 'high' },
+          { id: 't175', name: 'Bloom Filter', desc: 'Probabilistic data structure, false positives, space efficiency', priority: 'medium' },
+          { id: 't176', name: 'Distributed Locking (Redis)', desc: 'Redisson, Redlock algorithm, lock expiry, fencing tokens', priority: 'high' },
+        ]
+      },
+      {
+        name: 'Week 21 — Data & Storage Deep Dive',
+        topics: [
+          { id: 't177', name: 'SQL vs NoSQL Decision Framework', desc: 'When ACID matters, horizontal scale needs, data model fit', priority: 'critical' },
+          { id: 't178', name: 'Elasticsearch & Inverted Index', desc: 'Full-text search, analyzer pipeline, relevance scoring BM25', priority: 'high' },
+          { id: 't179', name: 'Time Series Databases', desc: 'InfluxDB/TimescaleDB, append-heavy workloads, retention policies', priority: 'medium' },
+          { id: 't180', name: 'Blob Storage & Pre-signed URLs', desc: 'S3 object storage, direct client upload, CDN integration', priority: 'high' },
+          { id: 't181', name: 'Event Sourcing', desc: 'Append-only event log, state reconstruction, difference from pub-sub', priority: 'high' },
+          { id: 't182', name: 'WebSockets vs Long Polling vs SSE', desc: 'When to use which, connection overhead, real-time requirements', priority: 'high' },
+        ]
+      },
+      {
+        name: 'Week 22 & 23 — System Design Problems',
+        topics: [
+          { id: 't183', name: 'Design Framework — RESHADED', desc: 'Requirements → Estimation → Storage → HLD → API → Data → Evaluate → Dive', priority: 'critical' },
+          { id: 't184', name: 'URL Shortener', desc: 'Hashing, redirect, analytics, base62 encoding, DB choice', priority: 'critical' },
+          { id: 't185', name: 'Rate Limiter System', desc: 'Algorithm choice, distributed state, Redis implementation', priority: 'critical' },
+          { id: 't186', name: 'WhatsApp / Chat System', desc: 'WebSockets, message ordering, delivery receipts, group scaling', priority: 'critical' },
+          { id: 't187', name: 'Instagram / Twitter Feed', desc: 'Fan-out push vs pull vs hybrid, celebrity problem, timeline gen', priority: 'critical' },
+          { id: 't188', name: 'Netflix / Video Streaming', desc: 'CDN, adaptive bitrate, content distribution, recommendation', priority: 'high' },
+          { id: 't189', name: 'Uber / Ride Sharing', desc: 'Geospatial indexing (quadtree/geohash), driver matching, surge', priority: 'high' },
+          { id: 't190', name: 'Search Autocomplete', desc: 'Trie + ranking + caching top queries + personalization', priority: 'high' },
+          { id: 't191', name: 'Distributed Job Scheduler', desc: 'At-least-once delivery, idempotency, cron, distributed locking', priority: 'high' },
+          { id: 't192', name: 'Web Crawler', desc: 'BFS frontier, politeness, deduplication, URL normalization', priority: 'medium' },
+          { id: 't193', name: 'Distributed Cache (Redis-like)', desc: 'Consistent hashing, replication, eviction, data partitioning', priority: 'high' },
+        ]
+      }
+    ]
+  },
+  {
+    id: 'p6', label: 'Phase 6', title: 'Interview Prep & Soft Skills', subtitle: '2 Weeks · Final 10% That Seals Offers',
+    weight: 5,
+    groups: [
+      {
+        name: 'Week 24 — Mock Interviews & Behavioral',
+        topics: [
+          { id: 't194', name: 'STAR Method — 10 Stories Prepared', desc: 'Failure, leadership, conflict, ambiguity, ownership, impact stories', priority: 'critical' },
+          { id: 't195', name: 'Timed Mock Interview Sessions', desc: '10+ sessions recorded — DSA, LLD, System Design rounds', priority: 'critical' },
+          { id: 't196', name: '"Tell Me About Yourself" (2-min version)', desc: 'Crisp career narrative, technical identity, what you\'re building toward', priority: 'critical' },
+          { id: 't197', name: 'Production Incident Story', desc: 'Root cause, impact, fix, what changed after — shows ownership', priority: 'high' },
+          { id: 't198', name: 'Technical Trade-off Discussion', desc: 'Practice explaining why you chose technology X over Y', priority: 'high' },
+        ]
+      },
+      {
+        name: 'Week 25 — Profile & Negotiation',
+        topics: [
+          { id: 't199', name: 'Resume — Impact Numbers', desc: 'Every bullet has a metric: latency, RPS, cost reduction, team size', priority: 'critical' },
+          { id: 't200', name: 'GitHub — 2 Solid Projects', desc: 'Spring Boot API + DB + tests + Docker + README + clean commits', priority: 'high' },
+          { id: 't201', name: 'LeetCode Profile 150+ Solved', desc: '60% medium, 20% easy, 20% hard — company-specific lists done', priority: 'critical' },
+          { id: 't202', name: 'Offer Negotiation Preparation', desc: 'Levels.fyi research, BATNA, total comp breakdown, competing offers', priority: 'critical' },
+          { id: 't203', name: 'Salary Research Done', desc: 'LinkedIn Salary, Glassdoor, Levels.fyi for your target companies', priority: 'high' },
+        ]
+      }
+    ]
+  }
+];
+
+// ─── STATE ──────────────────────────────────────────────────────────────────
+let state = {}; // { topicId: { status, note, completedAt } }
+let expandedPhases = {};
+let allExpanded = false;
+let currentNoteId = null;
+
+const STATUS_CYCLE = ['not-started', 'in-progress', 'completed', 'needs-review'];
+const STATUS_LABELS = {
+  'not-started': '— Not Started',
+  'in-progress': '⟳ In Progress',
+  'completed': '✓ Completed',
+  'needs-review': '↺ Needs Review'
+};
+const STATUS_CLASSES = {
+  'not-started': 'status-not-started',
+  'in-progress': 'status-in-progress',
+  'completed': 'status-completed',
+  'needs-review': 'status-needs-review'
+};
+const PRIORITY_LABELS = { critical: 'CRITICAL', high: 'HIGH', medium: 'MED', low: 'LOW' };
+const PRIORITY_CLASSES = { critical: 'priority-critical', high: 'priority-high', medium: 'priority-medium', low: 'priority-low' };
+
+// ─── STORAGE ─────────────────────────────────────────────────────────────────
+function loadState() {
+  try {
+    const saved = localStorage.getItem('javaTrackerState_v2');
+    if (saved) state = JSON.parse(saved);
+    const savedExpanded = localStorage.getItem('javaTrackerExpanded');
+    if (savedExpanded) expandedPhases = JSON.parse(savedExpanded);
+    const firstVisit = localStorage.getItem('javaTrackerFirstVisit');
+    if (!firstVisit) {
+      localStorage.setItem('javaTrackerFirstVisit', new Date().toISOString());
+    }
+  } catch(e) { state = {}; }
+}
+function saveState() {
+  localStorage.setItem('javaTrackerState_v2', JSON.stringify(state));
+  localStorage.setItem('javaTrackerExpanded', JSON.stringify(expandedPhases));
+}
+function getTopicState(id) {
+  return state[id] || { status: 'not-started', note: '', completedAt: null };
+}
+
+// ─── STATS ──────────────────────────────────────────────────────────────────
+function getAllTopics() {
+  const all = [];
+  PHASES.forEach(p => p.groups.forEach(g => g.topics.forEach(t => all.push({ ...t, phaseId: p.id }))));
+  return all;
+}
+function computeStats() {
+  const all = getAllTopics();
+  const total = all.length;
+  let completed = 0, inProgress = 0, needsReview = 0;
+  all.forEach(t => {
+    const s = getTopicState(t.id).status;
+    if (s === 'completed') completed++;
+    else if (s === 'in-progress') inProgress++;
+    else if (s === 'needs-review') needsReview++;
+  });
+  const pending = total - completed - inProgress - needsReview;
+  return { total, completed, inProgress, needsReview, pending };
+}
+function computePhaseStats(phase) {
+  const topics = [];
+  phase.groups.forEach(g => g.topics.forEach(t => topics.push(t)));
+  let completed = 0, inProgress = 0;
+  topics.forEach(t => {
+    const s = getTopicState(t.id).status;
+    if (s === 'completed') completed++;
+    else if (s === 'in-progress') inProgress++;
+  });
+  return { total: topics.length, completed, inProgress };
+}
+function computeReadiness() {
+  let score = 0;
+  PHASES.forEach(phase => {
+    const { total, completed, inProgress } = computePhaseStats(phase);
+    const phaseScore = (completed + inProgress * 0.5) / total;
+    score += phaseScore * phase.weight;
+  });
+  return Math.round(score);
+}
+function getDaysActive() {
+  const first = localStorage.getItem('javaTrackerFirstVisit');
+  if (!first) return 0;
+  return Math.max(1, Math.floor((Date.now() - new Date(first).getTime()) / 86400000));
+}
+function getTier(score) {
+  if (score >= 80) return { label: 'EXPERT READY', cls: 'tier-expert' };
+  if (score >= 60) return { label: 'INTERVIEW READY', cls: 'tier-ready' };
+  if (score >= 35) return { label: 'INTERMEDIATE', cls: 'tier-intermediate' };
+  return { label: 'BEGINNER', cls: 'tier-beginner' };
+}
+
+// ─── UPDATE UI ───────────────────────────────────────────────────────────────
+function updateStats() {
+  const { total, completed, inProgress, needsReview, pending } = computeStats();
+  document.getElementById('statTotal').textContent = total;
+  document.getElementById('statCompleted').textContent = completed;
+  document.getElementById('statInProgress').textContent = inProgress;
+  document.getElementById('statNeedsReview').textContent = needsReview;
+  document.getElementById('statPending').textContent = pending;
+  document.getElementById('statDays').textContent = getDaysActive();
+  const pct = total > 0 ? Math.round(completed / total * 100) : 0;
+  document.getElementById('overallPct').textContent = pct + '%';
+  document.getElementById('overallBar').style.width = pct + '%';
+
+  // Phase mini bars
+  const miniGrid = document.getElementById('phaseMiniGrid');
+  miniGrid.innerHTML = '';
+  PHASES.forEach(phase => {
+    const { total: pt, completed: pc, inProgress: pi } = computePhaseStats(phase);
+    const pp = pt > 0 ? Math.round((pc + pi * 0.5) / pt * 100) : 0;
+    const div = document.createElement('div');
+    div.className = 'phase-mini';
+    div.innerHTML = `<div class="phase-mini-label"><span>${phase.label}: ${phase.title}</span><span>${pp}%</span></div><div class="phase-mini-bar"><div class="phase-mini-bar-fill" style="width:${pp}%"></div></div>`;
+    miniGrid.appendChild(div);
+  });
+
+  // Assessment
+  const readiness = computeReadiness();
+  document.getElementById('readinessScore').textContent = readiness + '%';
+  const tier = getTier(readiness);
+  const tierEl = document.getElementById('tierBadge');
+  tierEl.textContent = tier.label;
+  tierEl.className = 'assessment-tier ' + tier.cls;
+
+  // Pillar breakdown
+  const breakdown = document.getElementById('pillarBreakdown');
+  breakdown.innerHTML = '';
+  PHASES.forEach(phase => {
+    const { total: pt, completed: pc } = computePhaseStats(phase);
+    const pp = pt > 0 ? Math.round(pc / pt * 100) : 0;
+    const el = document.createElement('div');
+    el.className = 'pillar-score';
+    el.innerHTML = `<span>${pp}%</span>${phase.label}`;
+    breakdown.appendChild(el);
+  });
+}
+
+// ─── RENDER ──────────────────────────────────────────────────────────────────
+function renderAll() {
+  const container = document.getElementById('mainContent');
+  container.innerHTML = '';
+  PHASES.forEach(phase => {
+    const section = buildPhaseSection(phase);
+    container.appendChild(section);
+  });
+  updateStats();
+}
+
+function buildPhaseSection(phase) {
+  const { total, completed, inProgress } = computePhaseStats(phase);
+  const isOpen = expandedPhases[phase.id] !== false; // default open
+
+  const section = document.createElement('div');
+  section.className = 'phase-section';
+  section.id = 'section-' + phase.id;
+
+  const header = document.createElement('div');
+  header.className = 'phase-header' + (isOpen ? ' open' : '');
+  header.innerHTML = `
+    <span class="phase-badge">${phase.label}</span>
+    <div>
+      <div class="phase-title">${phase.title}</div>
+      <div class="phase-subtitle">${phase.subtitle}</div>
+    </div>
+    <span class="phase-progress-text">${completed}/${total} done${inProgress > 0 ? ' · ' + inProgress + ' WIP' : ''}</span>
+    <span class="phase-chevron ${isOpen ? 'open' : ''}">▼</span>
+  `;
+  header.addEventListener('click', () => togglePhase(phase.id));
+
+  const body = document.createElement('div');
+  body.id = 'body-' + phase.id;
+  body.style.display = isOpen ? 'block' : 'none';
+
+  const table = document.createElement('table');
+  table.className = 'topic-table';
+  table.innerHTML = `<thead><tr>
+    <th></th>
+    <th>Topic</th>
+    <th class="col-status">Status</th>
+    <th class="col-priority">Priority</th>
+    <th>Notes</th>
+    <th class="col-date">Last Updated</th>
+  </tr></thead>`;
+  const tbody = document.createElement('tbody');
+  tbody.id = 'tbody-' + phase.id;
+
+  phase.groups.forEach(group => {
+    const sgRow = document.createElement('tr');
+    sgRow.className = 'subgroup-row';
+    sgRow.innerHTML = `<td colspan="6">${group.name}</td>`;
+    tbody.appendChild(sgRow);
+
+    group.topics.forEach(topic => {
+      tbody.appendChild(buildTopicRow(topic));
+    });
+  });
+
+  table.appendChild(tbody);
+  body.appendChild(table);
+  section.appendChild(header);
+  section.appendChild(body);
+  return section;
+}
+
+function buildTopicRow(topic) {
+  const ts = getTopicState(topic.id);
+  const row = document.createElement('tr');
+  row.className = 'topic-row';
+  row.id = 'row-' + topic.id;
+  if (ts.status === 'completed') row.classList.add('completed');
+  if (ts.status === 'in-progress') row.classList.add('in-progress');
+
+  // Checkbox (quick complete)
+  const checkTd = document.createElement('td');
+  const cb = document.createElement('input');
+  cb.type = 'checkbox';
+  cb.className = 'topic-checkbox';
+  cb.checked = ts.status === 'completed';
+  cb.addEventListener('change', () => quickComplete(topic.id, cb.checked));
+  checkTd.appendChild(cb);
+
+  // Name
+  const nameTd = document.createElement('td');
+  nameTd.innerHTML = `<div class="topic-name">${topic.name}</div><div class="topic-desc">${topic.desc}</div>`;
+
+  // Status cycle button
+  const statusTd = document.createElement('td');
+  const statusBtn = document.createElement('button');
+  statusBtn.className = `status-badge ${STATUS_CLASSES[ts.status]}`;
+  statusBtn.id = 'status-' + topic.id;
+  statusBtn.textContent = STATUS_LABELS[ts.status];
+  statusBtn.addEventListener('click', () => cycleStatus(topic.id));
+  statusTd.appendChild(statusBtn);
+
+  // Priority
+  const prioTd = document.createElement('td');
+  prioTd.innerHTML = `<span class="priority-badge ${PRIORITY_CLASSES[topic.priority]}">${PRIORITY_LABELS[topic.priority]}</span>`;
+
+  // Notes
+  const notesTd = document.createElement('td');
+  const notesBtn = document.createElement('button');
+  notesBtn.className = 'notes-btn' + (ts.note ? ' has-note' : '');
+  notesBtn.id = 'notebtn-' + topic.id;
+  notesBtn.textContent = ts.note ? '📝 View' : '+ Note';
+  notesBtn.addEventListener('click', () => openNotes(topic.id, topic.name));
+  notesTd.appendChild(notesBtn);
+
+  // Date
+  const dateTd = document.createElement('td');
+  dateTd.className = 'date-cell';
+  dateTd.id = 'date-' + topic.id;
+  dateTd.textContent = ts.completedAt ? new Date(ts.completedAt).toLocaleDateString('en-IN', { day:'2-digit', month:'short', year:'2-digit' }) : '—';
+
+  row.appendChild(checkTd);
+  row.appendChild(nameTd);
+  row.appendChild(statusTd);
+  row.appendChild(prioTd);
+  row.appendChild(notesTd);
+  row.appendChild(dateTd);
+  return row;
+}
+
+// ─── ACTIONS ─────────────────────────────────────────────────────────────────
+function quickComplete(id, checked) {
+  const ts = getTopicState(id);
+  ts.status = checked ? 'completed' : 'not-started';
+  if (checked) ts.completedAt = new Date().toISOString();
+  else ts.completedAt = null;
+  state[id] = ts;
+  saveState();
+  refreshRow(id);
+  updateStats();
+}
+
+function cycleStatus(id) {
+  const ts = getTopicState(id);
+  const idx = STATUS_CYCLE.indexOf(ts.status);
+  ts.status = STATUS_CYCLE[(idx + 1) % STATUS_CYCLE.length];
+  ts.completedAt = ts.status === 'completed' ? new Date().toISOString() : (ts.status === 'not-started' ? null : ts.completedAt);
+  state[id] = ts;
+  saveState();
+  refreshRow(id);
+  updateStats();
+}
+
+function refreshRow(id) {
+  const ts = getTopicState(id);
+  const row = document.getElementById('row-' + id);
+  if (!row) return;
+  row.className = 'topic-row';
+  if (ts.status === 'completed') row.classList.add('completed');
+  if (ts.status === 'in-progress') row.classList.add('in-progress');
+
+  const cb = row.querySelector('.topic-checkbox');
+  if (cb) cb.checked = ts.status === 'completed';
+
+  const statusBtn = document.getElementById('status-' + id);
+  if (statusBtn) {
+    statusBtn.className = 'status-badge ' + STATUS_CLASSES[ts.status];
+    statusBtn.textContent = STATUS_LABELS[ts.status];
+  }
+  const dateEl = document.getElementById('date-' + id);
+  if (dateEl) dateEl.textContent = ts.completedAt ? new Date(ts.completedAt).toLocaleDateString('en-IN', { day:'2-digit', month:'short', year:'2-digit' }) : '—';
+
+  const notesBtn = document.getElementById('notebtn-' + id);
+  if (notesBtn) {
+    notesBtn.className = 'notes-btn' + (ts.note ? ' has-note' : '');
+    notesBtn.textContent = ts.note ? '📝 View' : '+ Note';
+  }
+
+  // Refresh phase header
+  PHASES.forEach(phase => {
+    const found = phase.groups.some(g => g.topics.some(t => t.id === id));
+    if (found) {
+      const { total, completed, inProgress } = computePhaseStats(phase);
+      const header = document.querySelector('#section-' + phase.id + ' .phase-progress-text');
+      if (header) header.textContent = `${completed}/${total} done${inProgress > 0 ? ' · ' + inProgress + ' WIP' : ''}`;
+    }
+  });
+}
+
+// ─── PHASE TOGGLE ────────────────────────────────────────────────────────────
+function togglePhase(id) {
+  const body = document.getElementById('body-' + id);
+  const header = document.querySelector('#section-' + id + ' .phase-header');
+  const chevron = document.querySelector('#section-' + id + ' .phase-chevron');
+  const isOpen = body.style.display !== 'none';
+  body.style.display = isOpen ? 'none' : 'block';
+  header.classList.toggle('open', !isOpen);
+  chevron.classList.toggle('open', !isOpen);
+  expandedPhases[id] = !isOpen;
+  saveState();
+}
+
+function toggleAllPhases() {
+  allExpanded = !allExpanded;
+  PHASES.forEach(p => {
+    const body = document.getElementById('body-' + p.id);
+    const header = document.querySelector('#section-' + p.id + ' .phase-header');
+    const chevron = document.querySelector('#section-' + p.id + ' .phase-chevron');
+    body.style.display = allExpanded ? 'block' : 'none';
+    header.classList.toggle('open', allExpanded);
+    chevron.classList.toggle('open', allExpanded);
+    expandedPhases[p.id] = allExpanded;
+  });
+  document.querySelector('.btn-expand-all').textContent = allExpanded ? 'Collapse All' : 'Expand All';
+  saveState();
+}
+
+// ─── FILTERS ─────────────────────────────────────────────────────────────────
+function applyFilters() {
+  const search = document.getElementById('searchInput').value.toLowerCase();
+  const filterStatus = document.getElementById('filterStatus').value;
+  const filterPriority = document.getElementById('filterPriority').value;
+
+  PHASES.forEach(phase => {
+    let phaseHasVisible = false;
+    phase.groups.forEach(group => {
+      group.topics.forEach(topic => {
+        const ts = getTopicState(topic.id);
+        const row = document.getElementById('row-' + topic.id);
+        if (!row) return;
+        const matchSearch = !search || topic.name.toLowerCase().includes(search) || topic.desc.toLowerCase().includes(search);
+        const matchStatus = filterStatus === 'all' || ts.status === filterStatus;
+        const matchPriority = filterPriority === 'all' || topic.priority === filterPriority;
+        const visible = matchSearch && matchStatus && matchPriority;
+        row.classList.toggle('hidden', !visible);
+        if (visible) phaseHasVisible = true;
+      });
+    });
+    // Auto-expand phases that have results
+    if ((search || filterStatus !== 'all' || filterPriority !== 'all') && phaseHasVisible) {
+      const body = document.getElementById('body-' + phase.id);
+      const header = document.querySelector('#section-' + phase.id + ' .phase-header');
+      const chevron = document.querySelector('#section-' + phase.id + ' .phase-chevron');
+      if (body) { body.style.display = 'block'; header.classList.add('open'); chevron.classList.add('open'); }
+    }
+  });
+}
+
+// ─── NOTES MODAL ─────────────────────────────────────────────────────────────
+function openNotes(id, name) {
+  currentNoteId = id;
+  const ts = getTopicState(id);
+  document.getElementById('modalTitle').textContent = '📝 Notes — ' + name;
+  document.getElementById('modalSubtitle').textContent = 'Write doubts, resources, reminders, or key takeaways';
+  document.getElementById('modalTextarea').value = ts.note || '';
+  document.getElementById('notesModal').classList.add('open');
+  setTimeout(() => document.getElementById('modalTextarea').focus(), 100);
+}
+function closeNotes() {
+  document.getElementById('notesModal').classList.remove('open');
+  currentNoteId = null;
+}
+function saveNotes() {
+  if (!currentNoteId) return;
+  const ts = getTopicState(currentNoteId);
+  ts.note = document.getElementById('modalTextarea').value.trim();
+  state[currentNoteId] = ts;
+  saveState();
+  const notesBtn = document.getElementById('notebtn-' + currentNoteId);
+  if (notesBtn) {
+    notesBtn.className = 'notes-btn' + (ts.note ? ' has-note' : '');
+    notesBtn.textContent = ts.note ? '📝 View' : '+ Note';
+  }
+  closeNotes();
+}
+document.getElementById('notesModal').addEventListener('click', function(e) {
+  if (e.target === this) closeNotes();
+});
+document.addEventListener('keydown', e => { if (e.key === 'Escape') closeNotes(); });
+
+// ─── EXPORT ──────────────────────────────────────────────────────────────────
+function exportData() {
+  const data = { exportedAt: new Date().toISOString(), state };
+  const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = 'java-tracker-backup-' + new Date().toLocaleDateString('en-IN').replace(/\//g,'-') + '.json';
+  a.click();
+}
+
+function confirmReset() {
+  if (confirm('Reset ALL progress? This cannot be undone.')) {
+    state = {};
+    saveState();
+    renderAll();
+  }
+}
+
+// ─── INIT ────────────────────────────────────────────────────────────────────
+loadState();
+renderAll();
+</script>
+</body>
+</html>
