@@ -1,1429 +1,1639 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8" />
+<meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
 <title>Java Backend Interview Tracker</title>
-<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet"/>
-<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;600&family=IBM+Plex+Sans:wght@300;400;500;600&display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&family=Sora:wght@300;400;500;600&display=swap" rel="stylesheet"/>
 <style>
-  :root {
-    --primary: #1a1a2e;
-    --accent: #0f6fff;
-    --accent-light: #e8f1ff;
-    --success: #0d6b3c;
-    --success-bg: #e6f4ed;
-    --warning: #92560a;
-    --warning-bg: #fef3e2;
-    --danger: #c0392b;
-    --danger-bg: #fdecea;
-    --muted: #6b7280;
-    --border: #e2e8f0;
-    --surface: #f8fafc;
-    --white: #ffffff;
-    --text: #0f172a;
-    --text-secondary: #475569;
-    --font-mono: 'IBM Plex Mono', monospace;
-    --font-sans: 'IBM Plex Sans', sans-serif;
-    --radius: 8px;
-    --shadow: 0 1px 3px rgba(0,0,0,0.08), 0 1px 2px rgba(0,0,0,0.04);
-    --shadow-md: 0 4px 12px rgba(0,0,0,0.08);
-  }
-  * { box-sizing: border-box; margin: 0; padding: 0; }
-  body {
-    font-family: var(--font-sans);
-    background: var(--surface);
-    color: var(--text);
-    font-size: 14px;
-    line-height: 1.6;
-  }
-  /* HEADER */
-  .app-header {
-    background: var(--primary);
-    color: #fff;
-    padding: 20px 32px;
-    position: sticky;
-    top: 0;
-    z-index: 100;
-    border-bottom: 3px solid var(--accent);
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 16px;
-  }
-  .app-header h1 {
-    font-family: var(--font-mono);
-    font-size: 16px;
-    font-weight: 600;
-    letter-spacing: 0.04em;
-    color: #fff;
-  }
-  .app-header .tagline {
-    font-size: 11px;
-    color: #94a3b8;
-    font-family: var(--font-mono);
-    margin-top: 2px;
-  }
-  .header-actions {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    flex-shrink: 0;
-  }
-  .btn-reset {
-    font-size: 11px;
-    padding: 5px 12px;
-    border: 1px solid #334155;
-    background: transparent;
-    color: #94a3b8;
-    border-radius: var(--radius);
-    cursor: pointer;
-    font-family: var(--font-mono);
-    transition: all 0.15s;
-  }
-  .btn-reset:hover { border-color: var(--accent); color: #fff; }
-  /* PROGRESS DASHBOARD */
-  .dashboard {
-    padding: 24px 32px 16px;
-    background: var(--white);
-    border-bottom: 1px solid var(--border);
-  }
-  .dashboard-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
-    gap: 12px;
-    margin-bottom: 20px;
-  }
-  .stat-card {
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: var(--radius);
-    padding: 14px 16px;
-    text-align: center;
-  }
-  .stat-card .stat-value {
-    font-family: var(--font-mono);
-    font-size: 28px;
-    font-weight: 600;
-    color: var(--text);
-    line-height: 1.1;
-  }
-  .stat-card .stat-label {
-    font-size: 11px;
-    color: var(--text-secondary);
-    margin-top: 4px;
-    text-transform: uppercase;
-    letter-spacing: 0.05em;
-  }
-  .stat-card.accent { border-color: var(--accent); }
-  .stat-card.accent .stat-value { color: var(--accent); }
-  .stat-card.success { border-color: #22c55e; }
-  .stat-card.success .stat-value { color: var(--success); }
-  .stat-card.warning { border-color: #f59e0b; }
-  .stat-card.warning .stat-value { color: var(--warning); }
-  /* OVERALL PROGRESS BAR */
-  .overall-progress-wrap { margin-bottom: 4px; }
-  .overall-label {
-    display: flex;
-    justify-content: space-between;
-    font-size: 12px;
-    color: var(--text-secondary);
-    margin-bottom: 6px;
-    font-family: var(--font-mono);
-  }
-  .progress-bar-outer {
-    background: var(--border);
-    border-radius: 99px;
-    height: 10px;
-    overflow: hidden;
-  }
-  .progress-bar-inner {
-    height: 100%;
-    border-radius: 99px;
-    background: linear-gradient(90deg, var(--accent), #22c55e);
-    transition: width 0.4s ease;
-  }
-  /* PHASE PROGRESS MINI BARS */
-  .phase-mini-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-    gap: 8px;
-    margin-top: 16px;
-  }
-  .phase-mini {
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: var(--radius);
-    padding: 10px 12px;
-  }
-  .phase-mini-label {
-    font-size: 11px;
-    color: var(--text-secondary);
-    font-family: var(--font-mono);
-    margin-bottom: 6px;
-    display: flex;
-    justify-content: space-between;
-  }
-  .phase-mini-bar {
-    background: var(--border);
-    border-radius: 99px;
-    height: 5px;
-    overflow: hidden;
-  }
-  .phase-mini-bar-fill {
-    height: 100%;
-    border-radius: 99px;
-    background: var(--accent);
-    transition: width 0.4s ease;
-  }
-  /* CONTROLS */
-  .controls-bar {
-    padding: 14px 32px;
-    background: var(--white);
-    border-bottom: 1px solid var(--border);
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    flex-wrap: wrap;
-  }
-  .search-wrap {
-    position: relative;
-    flex: 1;
-    min-width: 180px;
-    max-width: 320px;
-  }
-  .search-wrap input {
-    width: 100%;
-    padding: 7px 12px 7px 32px;
-    border: 1px solid var(--border);
-    border-radius: var(--radius);
-    font-size: 13px;
-    font-family: var(--font-sans);
-    background: var(--surface);
-    color: var(--text);
-    outline: none;
-    transition: border-color 0.15s;
-  }
-  .search-wrap input:focus { border-color: var(--accent); }
-  .search-icon {
-    position: absolute;
-    left: 10px;
-    top: 50%;
-    transform: translateY(-50%);
-    color: var(--muted);
-    font-size: 13px;
-  }
-  .filter-select {
-    padding: 7px 10px;
-    border: 1px solid var(--border);
-    border-radius: var(--radius);
-    font-size: 12px;
-    font-family: var(--font-sans);
-    background: var(--surface);
-    color: var(--text);
-    outline: none;
-    cursor: pointer;
-  }
-  .filter-select:focus { border-color: var(--accent); }
-  .btn-expand-all {
-    padding: 7px 14px;
-    border: 1px solid var(--border);
-    background: var(--surface);
-    color: var(--text-secondary);
-    border-radius: var(--radius);
-    font-size: 12px;
-    cursor: pointer;
-    font-family: var(--font-mono);
-    transition: all 0.15s;
-  }
-  .btn-expand-all:hover { border-color: var(--accent); color: var(--accent); }
-  .controls-right { margin-left: auto; display: flex; gap: 8px; align-items: center; }
-  .legend-dot { width: 8px; height: 8px; border-radius: 50%; display: inline-block; margin-right: 4px; }
-  .legend-item { font-size: 11px; color: var(--muted); display: flex; align-items: center; }
-  /* MAIN CONTENT */
-  .main-content { padding: 24px 32px; }
-  /* PHASE SECTION */
-  .phase-section {
-    background: var(--white);
-    border: 1px solid var(--border);
-    border-radius: var(--radius);
-    margin-bottom: 16px;
-    overflow: hidden;
-    box-shadow: var(--shadow);
-  }
-  .phase-header {
-    padding: 14px 20px;
-    display: flex;
-    align-items: center;
-    gap: 14px;
-    cursor: pointer;
-    user-select: none;
-    border-bottom: 1px solid transparent;
-    transition: background 0.15s;
-  }
-  .phase-header:hover { background: var(--surface); }
-  .phase-header.open { border-bottom-color: var(--border); }
-  .phase-badge {
-    font-family: var(--font-mono);
-    font-size: 10px;
-    font-weight: 600;
-    padding: 3px 8px;
-    border-radius: 4px;
-    background: var(--accent);
-    color: #fff;
-    letter-spacing: 0.04em;
-    flex-shrink: 0;
-  }
-  .phase-title {
-    font-weight: 600;
-    font-size: 14px;
-    color: var(--text);
-    flex: 1;
-  }
-  .phase-subtitle { font-size: 11px; color: var(--muted); }
-  .phase-progress-text {
-    font-family: var(--font-mono);
-    font-size: 12px;
-    color: var(--text-secondary);
-    flex-shrink: 0;
-  }
-  .phase-chevron {
-    color: var(--muted);
-    font-size: 12px;
-    transition: transform 0.2s;
-    flex-shrink: 0;
-  }
-  .phase-chevron.open { transform: rotate(180deg); }
-  /* TABLE */
-  .topic-table { width: 100%; border-collapse: collapse; }
-  .topic-table thead th {
-    background: #f1f5f9;
-    padding: 8px 16px;
-    text-align: left;
-    font-size: 11px;
-    font-weight: 600;
-    color: var(--text-secondary);
-    text-transform: uppercase;
-    letter-spacing: 0.06em;
-    border-bottom: 1px solid var(--border);
-    font-family: var(--font-mono);
-  }
-  .topic-table thead th:first-child { width: 36px; }
-  .topic-table thead th.col-status { width: 130px; }
-  .topic-table thead th.col-priority { width: 90px; }
-  .topic-table thead th.col-date { width: 110px; }
-  .topic-row td {
-    padding: 10px 16px;
-    border-bottom: 1px solid #f1f5f9;
-    vertical-align: middle;
-    font-size: 13px;
-  }
-  .topic-row:last-child td { border-bottom: none; }
-  .topic-row:hover td { background: #fafbfc; }
-  .topic-row.completed td { background: #f0fdf4; }
-  .topic-row.in-progress td { background: #fffbeb; }
-  .topic-row.completed:hover td { background: #e6f7ef; }
-  .topic-row.in-progress:hover td { background: #fef8e7; }
-  /* HIDDEN when filtered */
-  .topic-row.hidden { display: none; }
-  /* CHECKBOX */
-  .topic-checkbox {
-    width: 16px; height: 16px;
-    cursor: pointer;
-    accent-color: var(--accent);
-  }
-  /* STATUS BADGE */
-  .status-badge {
-    display: inline-flex;
-    align-items: center;
-    gap: 4px;
-    font-size: 11px;
-    font-weight: 500;
-    padding: 3px 8px;
-    border-radius: 4px;
-    font-family: var(--font-mono);
-    cursor: pointer;
-    border: none;
-    outline: none;
-    transition: opacity 0.15s;
-    white-space: nowrap;
-  }
-  .status-badge:hover { opacity: 0.8; }
-  .status-not-started { background: #f1f5f9; color: var(--text-secondary); }
-  .status-in-progress { background: var(--warning-bg); color: var(--warning); }
-  .status-completed { background: var(--success-bg); color: var(--success); }
-  .status-needs-review { background: #fce8f3; color: #9b1b6a; }
-  /* PRIORITY */
-  .priority-badge {
-    font-size: 10px;
-    font-weight: 600;
-    padding: 2px 6px;
-    border-radius: 3px;
-    font-family: var(--font-mono);
-    letter-spacing: 0.04em;
-  }
-  .priority-critical { background: #fee2e2; color: #b91c1c; }
-  .priority-high { background: #fef3e2; color: #b45309; }
-  .priority-medium { background: var(--accent-light); color: #1d4ed8; }
-  .priority-low { background: #f0fdf4; color: #15803d; }
-  /* TOPIC NAME */
-  .topic-name { font-weight: 500; color: var(--text); }
-  .topic-desc { font-size: 11px; color: var(--muted); margin-top: 2px; }
-  /* DATE */
-  .date-cell { font-size: 11px; color: var(--muted); font-family: var(--font-mono); }
-  /* NOTES */
-  .notes-btn {
-    background: none;
-    border: 1px solid var(--border);
-    border-radius: 4px;
-    padding: 2px 8px;
-    font-size: 11px;
-    color: var(--muted);
-    cursor: pointer;
-    font-family: var(--font-sans);
-    transition: all 0.15s;
-  }
-  .notes-btn:hover { border-color: var(--accent); color: var(--accent); }
-  .notes-btn.has-note { border-color: #a855f7; color: #7c3aed; background: #faf5ff; }
-  /* SUBGROUP HEADER */
-  .subgroup-row td {
-    padding: 8px 16px;
-    background: #f8fafc;
-    font-size: 11px;
-    font-weight: 600;
-    color: var(--muted);
-    text-transform: uppercase;
-    letter-spacing: 0.07em;
-    font-family: var(--font-mono);
-    border-bottom: 1px solid var(--border);
-  }
-  /* MODAL */
-  .modal-overlay {
-    display: none;
-    position: fixed;
-    inset: 0;
-    background: rgba(15,23,42,0.5);
-    z-index: 1000;
-    align-items: center;
-    justify-content: center;
-  }
-  .modal-overlay.open { display: flex; }
-  .modal-box {
-    background: var(--white);
-    border-radius: 12px;
-    padding: 28px;
-    width: 480px;
-    max-width: 95vw;
-    box-shadow: var(--shadow-md);
-    position: relative;
-  }
-  .modal-title {
-    font-weight: 600;
-    font-size: 15px;
-    margin-bottom: 4px;
-    color: var(--text);
-  }
-  .modal-subtitle { font-size: 12px; color: var(--muted); margin-bottom: 16px; }
-  .modal-textarea {
-    width: 100%;
-    height: 120px;
-    border: 1px solid var(--border);
-    border-radius: var(--radius);
-    padding: 10px 12px;
-    font-size: 13px;
-    font-family: var(--font-sans);
-    resize: vertical;
-    outline: none;
-    color: var(--text);
-    transition: border-color 0.15s;
-  }
-  .modal-textarea:focus { border-color: var(--accent); }
-  .modal-actions { display: flex; gap: 8px; margin-top: 16px; justify-content: flex-end; }
-  .btn-save {
-    padding: 8px 20px;
-    background: var(--accent);
-    color: #fff;
-    border: none;
-    border-radius: var(--radius);
-    font-size: 13px;
-    font-family: var(--font-sans);
-    cursor: pointer;
-    font-weight: 500;
-  }
-  .btn-save:hover { opacity: 0.9; }
-  .btn-cancel {
-    padding: 8px 16px;
-    background: var(--surface);
-    border: 1px solid var(--border);
-    color: var(--text-secondary);
-    border-radius: var(--radius);
-    font-size: 13px;
-    font-family: var(--font-sans);
-    cursor: pointer;
-  }
-  .btn-close-modal {
-    position: absolute;
-    top: 14px; right: 16px;
-    background: none;
-    border: none;
-    font-size: 18px;
-    color: var(--muted);
-    cursor: pointer;
-    line-height: 1;
-  }
-  /* ASSESSMENT PANEL */
-  .assessment-bar {
-    padding: 12px 32px;
-    background: linear-gradient(90deg, #1a1a2e, #162040);
-    border-bottom: 1px solid #334155;
-    display: flex;
-    align-items: center;
-    gap: 20px;
-    flex-wrap: wrap;
-  }
-  .assessment-label { font-size: 11px; color: #64748b; font-family: var(--font-mono); }
-  .assessment-score {
-    font-family: var(--font-mono);
-    font-size: 22px;
-    font-weight: 600;
-    color: #fff;
-  }
-  .assessment-tier {
-    font-family: var(--font-mono);
-    font-size: 11px;
-    padding: 4px 10px;
-    border-radius: 4px;
-    font-weight: 600;
-    letter-spacing: 0.04em;
-  }
-  .tier-beginner { background: #fee2e2; color: #b91c1c; }
-  .tier-intermediate { background: #fef3e2; color: #b45309; }
-  .tier-ready { background: #e6f4ed; color: #0d6b3c; }
-  .tier-expert { background: #e0e7ff; color: #4338ca; }
-  .assessment-breakdown {
-    display: flex; gap: 14px; flex-wrap: wrap; flex: 1; justify-content: flex-end;
-  }
-  .pillar-score { font-size: 11px; color: #94a3b8; font-family: var(--font-mono); text-align: center; }
-  .pillar-score span { display: block; font-size: 14px; font-weight: 600; color: #e2e8f0; }
-  /* EMPTY STATE */
-  .no-results { text-align: center; padding: 40px; color: var(--muted); font-size: 13px; }
-  /* RESPONSIVE */
-  @media (max-width: 768px) {
-    .app-header { padding: 14px 16px; }
-    .dashboard, .controls-bar, .main-content { padding-left: 16px; padding-right: 16px; }
-    .assessment-bar { padding: 12px 16px; }
-    .assessment-breakdown { display: none; }
-    .topic-table thead th.col-date,
-    .topic-row td:nth-child(6) { display: none; }
-    .topic-table thead th.col-priority,
-    .topic-row td:nth-child(4) { display: none; }
-  }
+:root {
+  --bg: #f5f4f0;
+  --surface: #ffffff;
+  --surface2: #f9f8f5;
+  --border: #e8e6e0;
+  --border2: #d4d1c8;
+  --text: #1a1917;
+  --text2: #6b6760;
+  --text3: #9c9890;
+  --accent: #2563eb;
+  --accent-bg: #eff6ff;
+  --accent-dark: #1d4ed8;
+  --green: #16a34a;
+  --green-bg: #f0fdf4;
+  --amber: #b45309;
+  --amber-bg: #fffbeb;
+  --red: #dc2626;
+  --red-bg: #fef2f2;
+  --purple: #7c3aed;
+  --purple-bg: #f5f3ff;
+  --orange: #ea580c;
+  --sidebar-w: 280px;
+  --header-h: 56px;
+  --mono: 'JetBrains Mono', monospace;
+  --sans: 'Sora', sans-serif;
+  --radius: 8px;
+  --radius-lg: 12px;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%;overflow:hidden}
+body{font-family:var(--sans);background:var(--bg);color:var(--text);font-size:13px;display:flex;flex-direction:column}
+
+/* TOPBAR */
+.topbar{
+  height:var(--header-h);
+  background:var(--text);
+  display:flex;align-items:center;
+  padding:0 20px;gap:16px;
+  flex-shrink:0;
+  border-bottom:2px solid var(--accent);
+  z-index:50;
+}
+.topbar-logo{
+  font-family:var(--mono);font-size:13px;font-weight:700;
+  color:#fff;letter-spacing:0.06em;display:flex;align-items:center;gap:8px;
+}
+.topbar-logo span{color:var(--accent);font-size:18px}
+.topbar-sep{width:1px;height:24px;background:#334155;flex-shrink:0}
+.topbar-stats{display:flex;gap:20px;align-items:center}
+.tstat{font-family:var(--mono);font-size:11px;color:#94a3b8}
+.tstat strong{color:#fff;font-size:14px;display:block;line-height:1}
+.topbar-right{margin-left:auto;display:flex;gap:8px;align-items:center}
+.score-pill{
+  font-family:var(--mono);font-size:12px;font-weight:700;
+  padding:5px 14px;border-radius:99px;
+  background:var(--accent);color:#fff;
+  display:flex;align-items:center;gap:6px;
+}
+.tier-pill{
+  font-family:var(--mono);font-size:10px;font-weight:600;
+  padding:4px 10px;border-radius:99px;border:1px solid currentColor;
+}
+.tier-beginner{color:#f87171;border-color:#f87171}
+.tier-intermediate{color:#fbbf24;border-color:#fbbf24}
+.tier-ready{color:#34d399;border-color:#34d399}
+.tier-expert{color:#818cf8;border-color:#818cf8}
+.btn-sm{
+  padding:5px 12px;font-size:11px;font-family:var(--mono);
+  border:1px solid #334155;background:transparent;color:#94a3b8;
+  border-radius:var(--radius);cursor:pointer;transition:all .15s;
+}
+.btn-sm:hover{border-color:var(--accent);color:#fff}
+
+/* LAYOUT */
+.app-body{
+  display:flex;flex:1;overflow:hidden;
+}
+
+/* SIDEBAR */
+.sidebar{
+  width:var(--sidebar-w);
+  background:var(--surface);
+  border-right:1px solid var(--border);
+  display:flex;flex-direction:column;
+  overflow:hidden;flex-shrink:0;
+}
+.sidebar-search{
+  padding:12px;border-bottom:1px solid var(--border);flex-shrink:0;
+}
+.sidebar-search input{
+  width:100%;padding:7px 10px 7px 30px;
+  border:1px solid var(--border);border-radius:var(--radius);
+  font-size:12px;font-family:var(--sans);
+  background:var(--bg);color:var(--text);outline:none;
+  transition:border-color .15s;
+}
+.sidebar-search input:focus{border-color:var(--accent)}
+.sidebar-search-wrap{position:relative}
+.sidebar-search-wrap::before{
+  content:"⌕";position:absolute;left:9px;top:50%;
+  transform:translateY(-50%);color:var(--text3);font-size:14px;
+}
+.sidebar-nav{flex:1;overflow-y:auto;padding:8px 0}
+.sidebar-nav::-webkit-scrollbar{width:4px}
+.sidebar-nav::-webkit-scrollbar-track{background:transparent}
+.sidebar-nav::-webkit-scrollbar-thumb{background:var(--border2);border-radius:99px}
+
+/* PHASE GROUP */
+.phase-group{margin-bottom:2px}
+.phase-group-header{
+  display:flex;align-items:center;gap:8px;
+  padding:9px 14px;cursor:pointer;
+  font-weight:600;font-size:12px;color:var(--text2);
+  letter-spacing:0.03em;
+  border-radius:0;transition:background .15s;
+  user-select:none;
+}
+.phase-group-header:hover{background:var(--bg)}
+.phase-group-header.active-phase{color:var(--accent)}
+.phase-dot{
+  width:22px;height:22px;border-radius:6px;
+  display:flex;align-items:center;justify-content:center;
+  font-family:var(--mono);font-size:9px;font-weight:700;
+  flex-shrink:0;
+}
+.phase-label{flex:1;line-height:1.3}
+.phase-label small{display:block;font-size:10px;font-weight:400;color:var(--text3);margin-top:1px}
+.phase-ring{
+  width:28px;height:28px;flex-shrink:0;
+}
+.phase-chevron{font-size:10px;color:var(--text3);transition:transform .2s;flex-shrink:0}
+.phase-chevron.open{transform:rotate(90deg)}
+.phase-weeks{display:none;padding:0 0 4px 0}
+.phase-weeks.open{display:block}
+
+/* WEEK ITEM */
+.week-item{
+  display:flex;align-items:center;gap:8px;
+  padding:7px 14px 7px 42px;cursor:pointer;
+  font-size:12px;color:var(--text2);
+  transition:background .15s;border-radius:0;
+  position:relative;
+}
+.week-item::before{
+  content:'';position:absolute;left:28px;top:50%;
+  transform:translateY(-50%);
+  width:6px;height:6px;border-radius:50%;
+  background:var(--border2);flex-shrink:0;
+}
+.week-item:hover{background:var(--bg)}
+.week-item.active{
+  background:var(--accent-bg);color:var(--accent);font-weight:500;
+}
+.week-item.active::before{background:var(--accent)}
+.week-item-name{flex:1;font-size:11px;line-height:1.4}
+.week-badge{
+  font-family:var(--mono);font-size:9px;
+  padding:2px 5px;border-radius:4px;
+  background:var(--bg);color:var(--text3);
+  flex-shrink:0;white-space:nowrap;
+}
+.week-item.active .week-badge{background:var(--accent-bg);color:var(--accent)}
+.week-item.done-week .week-badge{background:var(--green-bg);color:var(--green)}
+.week-item.done-week::before{background:var(--green)}
+
+/* SIDEBAR FOOTER */
+.sidebar-footer{
+  border-top:1px solid var(--border);padding:12px;flex-shrink:0;
+}
+.overall-progress-label{
+  display:flex;justify-content:space-between;
+  font-size:11px;color:var(--text3);margin-bottom:6px;
+  font-family:var(--mono);
+}
+.progress-track{
+  height:6px;background:var(--border);border-radius:99px;overflow:hidden;
+}
+.progress-fill{
+  height:100%;border-radius:99px;
+  background:linear-gradient(90deg,var(--accent),#22c55e);
+  transition:width .4s ease;
+}
+.phase-bars{margin-top:10px;display:flex;flex-direction:column;gap:5px}
+.phase-bar-row{display:flex;align-items:center;gap:6px;font-size:10px;color:var(--text3);font-family:var(--mono)}
+.phase-bar-row span:first-child{width:18px;text-align:right;flex-shrink:0}
+.phase-bar-track{flex:1;height:4px;background:var(--border);border-radius:99px;overflow:hidden}
+.phase-bar-fill{height:100%;border-radius:99px;transition:width .4s}
+.phase-bar-pct{width:26px;text-align:right;flex-shrink:0}
+
+/* MAIN */
+.main{flex:1;overflow:hidden;display:flex;flex-direction:column}
+
+/* CONTENT HEADER */
+.content-header{
+  background:var(--surface);
+  border-bottom:1px solid var(--border);
+  padding:16px 24px 12px;
+  flex-shrink:0;
+}
+.content-breadcrumb{
+  font-family:var(--mono);font-size:10px;color:var(--text3);
+  margin-bottom:6px;letter-spacing:0.04em;text-transform:uppercase;
+}
+.content-title{
+  font-size:18px;font-weight:600;color:var(--text);margin-bottom:2px;
+}
+.content-subtitle{font-size:12px;color:var(--text2)}
+.content-meta{
+  display:flex;align-items:center;gap:12px;margin-top:10px;flex-wrap:wrap;
+}
+.meta-chip{
+  display:flex;align-items:center;gap:5px;
+  font-size:11px;font-family:var(--mono);
+  padding:4px 10px;border-radius:99px;
+  background:var(--bg);color:var(--text2);border:1px solid var(--border);
+}
+.meta-chip.green{background:var(--green-bg);color:var(--green);border-color:transparent}
+.meta-chip.amber{background:var(--amber-bg);color:var(--amber);border-color:transparent}
+.meta-chip.blue{background:var(--accent-bg);color:var(--accent);border-color:transparent}
+.content-week-progress{
+  margin-top:10px;display:flex;align-items:center;gap:10px;
+}
+.week-progress-label{font-size:11px;color:var(--text3);font-family:var(--mono);white-space:nowrap}
+.week-progress-track{
+  flex:1;max-width:240px;height:6px;
+  background:var(--border);border-radius:99px;overflow:hidden;
+}
+.week-progress-fill{height:100%;background:var(--accent);border-radius:99px;transition:width .4s}
+.week-progress-pct{font-size:11px;font-family:var(--mono);color:var(--accent);font-weight:600}
+
+/* FILTER BAR */
+.filter-bar{
+  background:var(--surface2);border-bottom:1px solid var(--border);
+  padding:8px 24px;display:flex;align-items:center;gap:10px;flex-wrap:wrap;
+  flex-shrink:0;
+}
+.filter-select{
+  padding:5px 8px;border:1px solid var(--border);border-radius:var(--radius);
+  font-size:11px;font-family:var(--sans);background:var(--surface);
+  color:var(--text);outline:none;cursor:pointer;
+}
+.filter-select:focus{border-color:var(--accent)}
+.search-mini{position:relative}
+.search-mini input{
+  padding:5px 10px 5px 26px;border:1px solid var(--border);
+  border-radius:var(--radius);font-size:11px;font-family:var(--sans);
+  background:var(--surface);color:var(--text);outline:none;width:180px;
+}
+.search-mini input:focus{border-color:var(--accent)}
+.search-mini::before{
+  content:"⌕";position:absolute;left:8px;top:50%;
+  transform:translateY(-50%);color:var(--text3);font-size:13px;
+}
+.filter-bar-right{margin-left:auto;display:flex;gap:8px;align-items:center}
+.legend{display:flex;gap:10px;align-items:center}
+.legend-item{display:flex;align-items:center;gap:4px;font-size:10px;color:var(--text3);font-family:var(--mono)}
+.ldot{width:7px;height:7px;border-radius:50%}
+.mark-all-btn{
+  padding:5px 12px;font-size:11px;font-family:var(--mono);
+  border:1px solid var(--border);background:var(--surface);
+  color:var(--text2);border-radius:var(--radius);cursor:pointer;transition:all .15s;
+}
+.mark-all-btn:hover{border-color:var(--green);color:var(--green)}
+
+/* CHECKLIST AREA */
+.checklist-area{flex:1;overflow-y:auto;padding:16px 24px}
+.checklist-area::-webkit-scrollbar{width:6px}
+.checklist-area::-webkit-scrollbar-track{background:transparent}
+.checklist-area::-webkit-scrollbar-thumb{background:var(--border2);border-radius:99px}
+
+/* TOPIC CARD */
+.topic-card{
+  background:var(--surface);border:1px solid var(--border);
+  border-radius:var(--radius-lg);margin-bottom:8px;
+  transition:border-color .15s,box-shadow .15s;
+  overflow:hidden;
+}
+.topic-card:hover{border-color:var(--border2);box-shadow:0 2px 8px rgba(0,0,0,.05)}
+.topic-card.completed{background:var(--green-bg);border-color:#bbf7d0}
+.topic-card.in-progress{background:var(--amber-bg);border-color:#fde68a}
+.topic-card.needs-review{background:var(--purple-bg);border-color:#ddd6fe}
+.topic-card.hidden{display:none}
+
+.topic-card-inner{
+  display:flex;align-items:flex-start;gap:12px;padding:12px 14px;
+}
+.topic-check{
+  width:18px;height:18px;border-radius:5px;border:2px solid var(--border2);
+  display:flex;align-items:center;justify-content:center;
+  cursor:pointer;flex-shrink:0;margin-top:2px;
+  transition:all .15s;background:var(--surface);
+}
+.topic-check:hover{border-color:var(--accent)}
+.topic-check.checked{background:var(--green);border-color:var(--green)}
+.topic-check.checked::after{content:'✓';color:#fff;font-size:10px;font-weight:700}
+.topic-check.in-progress-check{border-color:var(--amber);background:var(--amber-bg)}
+.topic-check.needs-review-check{border-color:var(--purple);background:var(--purple-bg)}
+
+.topic-body{flex:1;min-width:0}
+.topic-row-top{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.topic-name{font-weight:500;font-size:13px;color:var(--text)}
+.topic-card.completed .topic-name{text-decoration:line-through;color:var(--text3)}
+.topic-desc{font-size:11px;color:var(--text3);margin-top:3px;line-height:1.5}
+
+/* BADGES */
+.priority-badge{
+  font-family:var(--mono);font-size:9px;font-weight:700;
+  padding:2px 6px;border-radius:4px;letter-spacing:0.04em;flex-shrink:0;
+}
+.p-critical{background:#fee2e2;color:#b91c1c}
+.p-high{background:#fff3e0;color:#b45309}
+.p-medium{background:var(--accent-bg);color:var(--accent-dark)}
+.p-low{background:var(--green-bg);color:var(--green)}
+
+.difficulty-badge{
+  font-family:var(--mono);font-size:9px;
+  padding:2px 6px;border-radius:4px;flex-shrink:0;
+}
+.d-easy{background:#dcfce7;color:#15803d}
+.d-medium{background:#fef9c3;color:#a16207}
+.d-hard{background:#fee2e2;color:#b91c1c}
+
+.striver-badge{
+  font-family:var(--mono);font-size:9px;
+  padding:2px 6px;border-radius:4px;
+  background:#fdf2f8;color:#9d174d;flex-shrink:0;
+}
+
+/* STATUS CYCLE */
+.topic-actions{display:flex;align-items:center;gap:6px;margin-left:auto;flex-shrink:0}
+.status-cycle{
+  font-family:var(--mono);font-size:10px;font-weight:500;
+  padding:3px 8px;border-radius:99px;border:1px solid var(--border);
+  background:var(--bg);color:var(--text2);cursor:pointer;
+  transition:all .15s;white-space:nowrap;
+}
+.status-cycle:hover{border-color:var(--accent);color:var(--accent)}
+.status-cycle.s-completed{background:var(--green-bg);color:var(--green);border-color:#86efac}
+.status-cycle.s-in-progress{background:var(--amber-bg);color:var(--amber);border-color:#fcd34d}
+.status-cycle.s-needs-review{background:var(--purple-bg);color:var(--purple);border-color:#c4b5fd}
+.note-btn{
+  font-size:12px;padding:3px 6px;border:1px solid var(--border);
+  border-radius:var(--radius);background:var(--surface);
+  color:var(--text3);cursor:pointer;transition:all .15s;
+  font-family:var(--sans);
+}
+.note-btn:hover{border-color:var(--purple);color:var(--purple)}
+.note-btn.has-note{border-color:var(--purple);color:var(--purple);background:var(--purple-bg)}
+
+/* DATE */
+.topic-date{font-family:var(--mono);font-size:10px;color:var(--text3);margin-top:4px}
+
+/* NOTE PREVIEW */
+.note-preview{
+  padding:6px 14px 8px 44px;
+  font-size:11px;color:var(--text2);font-style:italic;
+  border-top:1px dashed var(--border);
+  background:rgba(0,0,0,.02);
+}
+
+/* SUBGROUP */
+.subgroup-header{
+  display:flex;align-items:center;gap:8px;
+  padding:12px 0 6px;
+  font-family:var(--mono);font-size:10px;font-weight:600;
+  color:var(--text3);letter-spacing:0.08em;text-transform:uppercase;
+}
+.subgroup-header::after{content:'';flex:1;height:1px;background:var(--border)}
+.subgroup-count{
+  font-size:9px;padding:2px 6px;border-radius:4px;
+  background:var(--border);color:var(--text3);
+}
+
+/* EMPTY STATE */
+.empty-state{
+  text-align:center;padding:60px 20px;color:var(--text3);
+}
+.empty-state .e-icon{font-size:40px;margin-bottom:12px}
+.empty-state p{font-size:13px}
+
+/* MODAL */
+.modal-overlay{
+  display:none;position:fixed;inset:0;
+  background:rgba(26,25,23,.6);backdrop-filter:blur(4px);
+  z-index:200;align-items:center;justify-content:center;
+}
+.modal-overlay.open{display:flex}
+.modal-box{
+  background:var(--surface);border-radius:var(--radius-lg);
+  width:500px;max-width:95vw;box-shadow:0 20px 60px rgba(0,0,0,.15);
+  overflow:hidden;
+}
+.modal-head{
+  padding:20px 24px 16px;border-bottom:1px solid var(--border);
+}
+.modal-head h3{font-size:15px;font-weight:600;color:var(--text);margin-bottom:2px}
+.modal-head p{font-size:12px;color:var(--text3)}
+.modal-body{padding:20px 24px}
+.modal-textarea{
+  width:100%;height:120px;border:1px solid var(--border);
+  border-radius:var(--radius);padding:10px 12px;
+  font-size:13px;font-family:var(--sans);color:var(--text);
+  resize:vertical;outline:none;background:var(--bg);
+  transition:border-color .15s;
+}
+.modal-textarea:focus{border-color:var(--accent)}
+.modal-foot{
+  padding:12px 24px;border-top:1px solid var(--border);
+  display:flex;justify-content:flex-end;gap:8px;
+  background:var(--surface2);
+}
+.btn-primary{
+  padding:8px 20px;background:var(--accent);color:#fff;
+  border:none;border-radius:var(--radius);font-size:13px;
+  font-family:var(--sans);cursor:pointer;font-weight:500;
+}
+.btn-primary:hover{background:var(--accent-dark)}
+.btn-ghost{
+  padding:8px 16px;background:var(--surface);
+  border:1px solid var(--border);color:var(--text2);
+  border-radius:var(--radius);font-size:13px;
+  font-family:var(--sans);cursor:pointer;
+}
+
+/* RING SVG */
+.ring-svg{overflow:visible}
+
+/* RESPONSIVE */
+@media(max-width:900px){
+  :root{--sidebar-w:240px}
+}
+@media(max-width:700px){
+  .sidebar{display:none}
+  .filter-bar .legend{display:none}
+}
 </style>
 </head>
 <body>
 
-<!-- HEADER -->
-<div class="app-header">
-  <div>
-    <h1>☕ Java Backend Interview Tracker</h1>
-    <div class="tagline">90%+ Probability Roadmap · Track · Assess · Crack</div>
+<!-- TOPBAR -->
+<div class="topbar">
+  <div class="topbar-logo"><span>☕</span>Java Interview Tracker</div>
+  <div class="topbar-sep"></div>
+  <div class="topbar-stats">
+    <div class="tstat"><strong id="ts-done">0</strong>Done</div>
+    <div class="tstat"><strong id="ts-wip">0</strong>WIP</div>
+    <div class="tstat"><strong id="ts-total">0</strong>Total</div>
   </div>
-  <div class="header-actions">
-    <button class="btn-reset" onclick="exportData()">⬇ Export</button>
-    <button class="btn-reset" onclick="confirmReset()">↺ Reset All</button>
-  </div>
-</div>
-
-<!-- ASSESSMENT BAR -->
-<div class="assessment-bar">
-  <div>
-    <div class="assessment-label">INTERVIEW READINESS SCORE</div>
-    <div class="assessment-score" id="readinessScore">0%</div>
-  </div>
-  <div id="tierBadge" class="assessment-tier tier-beginner">BEGINNER</div>
-  <div class="assessment-breakdown" id="pillarBreakdown"></div>
-</div>
-
-<!-- DASHBOARD -->
-<div class="dashboard">
-  <div class="dashboard-grid">
-    <div class="stat-card accent">
-      <div class="stat-value" id="statTotal">0</div>
-      <div class="stat-label">Total Topics</div>
-    </div>
-    <div class="stat-card success">
-      <div class="stat-value" id="statCompleted">0</div>
-      <div class="stat-label">Completed</div>
-    </div>
-    <div class="stat-card warning">
-      <div class="stat-value" id="statInProgress">0</div>
-      <div class="stat-label">In Progress</div>
-    </div>
-    <div class="stat-card">
-      <div class="stat-value" id="statPending">0</div>
-      <div class="stat-label">Not Started</div>
-    </div>
-    <div class="stat-card">
-      <div class="stat-value" id="statNeedsReview">0</div>
-      <div class="stat-label">Needs Review</div>
-    </div>
-    <div class="stat-card">
-      <div class="stat-value" id="statDays">0</div>
-      <div class="stat-label">Days Active</div>
-    </div>
-  </div>
-  <div class="overall-progress-wrap">
-    <div class="overall-label">
-      <span>Overall Progress</span>
-      <span id="overallPct">0%</span>
-    </div>
-    <div class="progress-bar-outer">
-      <div class="progress-bar-inner" id="overallBar" style="width:0%"></div>
-    </div>
-  </div>
-  <div class="phase-mini-grid" id="phaseMiniGrid"></div>
-</div>
-
-<!-- CONTROLS -->
-<div class="controls-bar">
-  <div class="search-wrap">
-    <span class="search-icon">🔍</span>
-    <input type="text" id="searchInput" placeholder="Search topics..." oninput="applyFilters()"/>
-  </div>
-  <select class="filter-select" id="filterStatus" onchange="applyFilters()">
-    <option value="all">All Statuses</option>
-    <option value="not-started">Not Started</option>
-    <option value="in-progress">In Progress</option>
-    <option value="completed">Completed</option>
-    <option value="needs-review">Needs Review</option>
-  </select>
-  <select class="filter-select" id="filterPriority" onchange="applyFilters()">
-    <option value="all">All Priorities</option>
-    <option value="critical">Critical</option>
-    <option value="high">High</option>
-    <option value="medium">Medium</option>
-    <option value="low">Low</option>
-  </select>
-  <button class="btn-expand-all" onclick="toggleAllPhases()">Expand All</button>
-  <div class="controls-right">
-    <span class="legend-item"><span class="legend-dot" style="background:#22c55e"></span>Done</span>
-    <span class="legend-item"><span class="legend-dot" style="background:#f59e0b"></span>WIP</span>
-    <span class="legend-item"><span class="legend-dot" style="background:#a855f7"></span>Review</span>
+  <div class="topbar-right">
+    <div class="score-pill">🎯 <span id="readiness-score">0%</span></div>
+    <div class="tier-pill tier-beginner" id="tier-badge">BEGINNER</div>
+    <button class="btn-sm" onclick="exportData()">⬇ Export</button>
+    <button class="btn-sm" onclick="confirmReset()">↺ Reset</button>
   </div>
 </div>
 
-<!-- MAIN CONTENT -->
-<div class="main-content" id="mainContent"></div>
+<!-- BODY -->
+<div class="app-body">
+
+  <!-- SIDEBAR -->
+  <div class="sidebar">
+    <div class="sidebar-search">
+      <div class="sidebar-search-wrap">
+        <input type="text" id="sidebar-search" placeholder="Find a week..." oninput="filterSidebar()"/>
+      </div>
+    </div>
+    <div class="sidebar-nav" id="sidebar-nav"></div>
+    <div class="sidebar-footer">
+      <div class="overall-progress-label">
+        <span>Overall Progress</span>
+        <span id="overall-pct">0%</span>
+      </div>
+      <div class="progress-track">
+        <div class="progress-fill" id="overall-bar" style="width:0%"></div>
+      </div>
+      <div class="phase-bars" id="phase-bars"></div>
+    </div>
+  </div>
+
+  <!-- MAIN -->
+  <div class="main">
+    <div class="content-header" id="content-header">
+      <div class="content-breadcrumb" id="content-breadcrumb">Select a week from the sidebar</div>
+      <div class="content-title" id="content-title">Java Backend Interview Tracker</div>
+      <div class="content-subtitle" id="content-subtitle">Click any week in the left panel to start tracking</div>
+      <div class="content-meta" id="content-meta"></div>
+      <div class="content-week-progress" id="content-week-progress" style="display:none">
+        <span class="week-progress-label">Week progress</span>
+        <div class="week-progress-track"><div class="week-progress-fill" id="week-prog-fill" style="width:0%"></div></div>
+        <span class="week-progress-pct" id="week-prog-pct">0%</span>
+      </div>
+    </div>
+
+    <div class="filter-bar">
+      <div class="search-mini">
+        <input type="text" id="topic-search" placeholder="Search topics..." oninput="applyFilters()"/>
+      </div>
+      <select class="filter-select" id="f-status" onchange="applyFilters()">
+        <option value="all">All Statuses</option>
+        <option value="not-started">Not Started</option>
+        <option value="in-progress">In Progress</option>
+        <option value="completed">Completed</option>
+        <option value="needs-review">Needs Review</option>
+      </select>
+      <select class="filter-select" id="f-priority" onchange="applyFilters()">
+        <option value="all">All Priorities</option>
+        <option value="critical">Critical</option>
+        <option value="high">High</option>
+        <option value="medium">Medium</option>
+        <option value="low">Low</option>
+      </select>
+      <select class="filter-select" id="f-difficulty" onchange="applyFilters()">
+        <option value="all">All Difficulties</option>
+        <option value="easy">Easy</option>
+        <option value="medium-diff">Medium</option>
+        <option value="hard">Hard</option>
+      </select>
+      <div class="filter-bar-right">
+        <div class="legend">
+          <span class="legend-item"><span class="ldot" style="background:var(--green)"></span>Done</span>
+          <span class="legend-item"><span class="ldot" style="background:var(--amber)"></span>WIP</span>
+          <span class="legend-item"><span class="ldot" style="background:var(--purple)"></span>Review</span>
+          <span class="legend-item"><span class="ldot" style="background:#f43f5e"></span>Striver</span>
+        </div>
+        <button class="mark-all-btn" id="mark-all-btn" onclick="markAllComplete()">✓ Mark Week Done</button>
+      </div>
+    </div>
+
+    <div class="checklist-area" id="checklist-area">
+      <div class="empty-state">
+        <div class="e-icon">📋</div>
+        <p>Select a phase & week from the left panel to view topics</p>
+      </div>
+    </div>
+  </div>
+</div>
 
 <!-- NOTES MODAL -->
-<div class="modal-overlay" id="notesModal">
+<div class="modal-overlay" id="notes-modal">
   <div class="modal-box">
-    <button class="btn-close-modal" onclick="closeNotes()">×</button>
-    <div class="modal-title" id="modalTitle">Add Notes</div>
-    <div class="modal-subtitle" id="modalSubtitle">Topic notes</div>
-    <textarea class="modal-textarea" id="modalTextarea" placeholder="Write your notes, doubts, resources, or reminders here..."></textarea>
-    <div class="modal-actions">
-      <button class="btn-cancel" onclick="closeNotes()">Cancel</button>
-      <button class="btn-save" onclick="saveNotes()">Save Notes</button>
+    <div class="modal-head">
+      <h3 id="modal-title">Add Notes</h3>
+      <p id="modal-subtitle">Write doubts, resources, or key takeaways</p>
+    </div>
+    <div class="modal-body">
+      <textarea class="modal-textarea" id="modal-textarea" placeholder="Your notes here..."></textarea>
+    </div>
+    <div class="modal-foot">
+      <button class="btn-ghost" onclick="closeNotes()">Cancel</button>
+      <button class="btn-primary" onclick="saveNotes()">Save Notes</button>
     </div>
   </div>
 </div>
 
 <script>
-// ─── DATA DEFINITIONS ───────────────────────────────────────────────────────
+// ═══════════════════════════════════════════════════════════
+// DATA
+// ═══════════════════════════════════════════════════════════
 const PHASES = [
+{
+  id:'p1',label:'Phase 1',title:'DSA & Problem Solving',color:'#2563eb',light:'#eff6ff',
+  weeks:[
   {
-    id: 'p1', label: 'Phase 1', title: 'DSA & Problem Solving', subtitle: '8 Weeks · 180–220 Problems Target',
-    weight: 25,
-    groups: [
-      {
-        name: 'Week 1 — Arrays & Fundamentals',
-        topics: [
-          { id: 't1', name: 'Prefix Sum & Suffix Sum', desc: 'Range sum queries, subarray sum problems', priority: 'critical' },
-          { id: 't2', name: 'Contribution Technique', desc: 'Element contribution to total answer', priority: 'high' },
-          { id: 't3', name: 'Carry Forward', desc: 'Running state across iterations', priority: 'medium' },
-          { id: 't4', name: 'Sliding Window — Fixed Size', desc: 'Max/min in subarray of size k', priority: 'critical' },
-          { id: 't5', name: 'Two Pointers — Left Right', desc: 'Sorted array pair problems', priority: 'critical' },
-          { id: 't6', name: 'Dutch National Flag', desc: '3-way partition, sort 0s 1s 2s', priority: 'high' },
-          { id: 't7', name: 'Frequency Counting', desc: 'HashMap for element frequencies', priority: 'high' },
-          { id: 't8', name: 'Time & Space Complexity Analysis', desc: 'Big-O, Omega, Theta notation', priority: 'critical' },
-        ]
-      },
-      {
-        name: 'Week 2 — Hashing, Strings & Sorting',
-        topics: [
-          { id: 't9', name: 'HashMap Internals', desc: 'Buckets, load factor, collision, treeification', priority: 'critical' },
-          { id: 't10', name: 'HashSet Applications', desc: 'Duplicate detection, set operations', priority: 'high' },
-          { id: 't11', name: 'Anagram Detection & String Hashing', desc: 'Character frequency maps', priority: 'high' },
-          { id: 't12', name: 'String Manipulation', desc: 'Palindromes, compression, KMP basics', priority: 'high' },
-          { id: 't13', name: 'Custom Sorting with Comparator', desc: 'Multi-field sorting, lambda comparators', priority: 'critical' },
-          { id: 't14', name: 'Merge Sort Logic', desc: 'Divide and conquer, stable sort', priority: 'high' },
-          { id: 't15', name: 'Counting Sort & Radix Sort', desc: 'Linear time sorting for bounded input', priority: 'medium' },
-        ]
-      },
-      {
-        name: 'Week 3 — Binary Search',
-        topics: [
-          { id: 't16', name: 'Classic Binary Search', desc: 'Standard sorted array search', priority: 'critical' },
-          { id: 't17', name: 'Binary Search on Answer', desc: 'Minimize maximum, maximize minimum', priority: 'critical' },
-          { id: 't18', name: 'First & Last Position', desc: 'Lower bound, upper bound', priority: 'critical' },
-          { id: 't19', name: 'Rotated Sorted Array', desc: 'Search in rotated + find pivot', priority: 'high' },
-          { id: 't20', name: 'Search in 2D Matrix', desc: 'Row-column binary search', priority: 'high' },
-          { id: 't21', name: 'Peak Element', desc: 'Local maxima in unsorted array', priority: 'high' },
-          { id: 't22', name: 'Aggressive Cows / Allocate Books', desc: 'Binary search on answer template', priority: 'critical' },
-        ]
-      },
-      {
-        name: 'Week 4 — Linked Lists, Stacks & Queues',
-        topics: [
-          { id: 't23', name: 'Linked List Reversal', desc: 'Iterative and recursive reversal', priority: 'critical' },
-          { id: 't24', name: 'Cycle Detection (Floyd\'s)', desc: 'Fast-slow pointer, cycle length', priority: 'critical' },
-          { id: 't25', name: 'Merge Two Sorted Lists', desc: 'Pointer manipulation', priority: 'high' },
-          { id: 't26', name: 'LRU Cache from Scratch', desc: 'HashMap + Doubly Linked List — must master', priority: 'critical' },
-          { id: 't27', name: 'Stack Applications', desc: 'Valid parentheses, daily temperatures', priority: 'critical' },
-          { id: 't28', name: 'Next Greater Element', desc: 'Monotonic stack pattern', priority: 'high' },
-          { id: 't29', name: 'Largest Rectangle in Histogram', desc: 'Monotonic stack classic', priority: 'high' },
-          { id: 't30', name: 'Sliding Window Maximum (Deque)', desc: 'Deque-based O(n) solution', priority: 'high' },
-        ]
-      },
-      {
-        name: 'Week 5 — Trees & Heaps',
-        topics: [
-          { id: 't31', name: 'Tree BFS (Level Order)', desc: 'Queue-based traversal, zigzag', priority: 'critical' },
-          { id: 't32', name: 'Tree DFS (Pre/In/Post)', desc: 'Recursive and iterative', priority: 'critical' },
-          { id: 't33', name: 'Diameter of Binary Tree', desc: 'Max path through or not through root', priority: 'high' },
-          { id: 't34', name: 'Lowest Common Ancestor', desc: 'LCA for binary tree and BST', priority: 'critical' },
-          { id: 't35', name: 'Serialize & Deserialize Tree', desc: 'BFS and DFS based approaches', priority: 'high' },
-          { id: 't36', name: 'BST Operations', desc: 'Insert, delete, search, validate', priority: 'high' },
-          { id: 't37', name: 'Kth Smallest in BST', desc: 'Inorder traversal property', priority: 'high' },
-          { id: 't38', name: 'Heap Operations & PriorityQueue', desc: 'Min-heap, max-heap, heapify', priority: 'critical' },
-          { id: 't39', name: 'Top K Frequent Elements', desc: 'Heap-based, bucket sort approach', priority: 'critical' },
-          { id: 't40', name: 'Merge K Sorted Lists', desc: 'PriorityQueue pattern', priority: 'high' },
-          { id: 't41', name: 'Find Median from Data Stream', desc: 'Two heaps pattern', priority: 'high' },
-        ]
-      },
-      {
-        name: 'Week 6 — Graphs',
-        topics: [
-          { id: 't42', name: 'Graph BFS & DFS', desc: 'Adjacency list, matrix representations', priority: 'critical' },
-          { id: 't43', name: 'Cycle Detection', desc: 'Directed (DFS color) and undirected (parent tracking)', priority: 'critical' },
-          { id: 't44', name: 'Topological Sort', desc: 'Kahn\'s BFS + DFS-based approach', priority: 'critical' },
-          { id: 't45', name: 'Dijkstra\'s Algorithm', desc: 'Shortest path with priority queue', priority: 'high' },
-          { id: 't46', name: 'Union-Find / Disjoint Set', desc: 'Path compression, union by rank', priority: 'high' },
-          { id: 't47', name: 'Number of Islands', desc: 'BFS/DFS on grid', priority: 'critical' },
-          { id: 't48', name: 'Course Schedule', desc: 'Topological sort application', priority: 'high' },
-          { id: 't49', name: 'Word Ladder', desc: 'BFS shortest transformation', priority: 'high' },
-        ]
-      },
-      {
-        name: 'Week 7 — Recursion, Backtracking & Trie',
-        topics: [
-          { id: 't50', name: 'Recursion Tree Visualization', desc: 'Draw before coding every problem', priority: 'critical' },
-          { id: 't51', name: 'Subsets & Power Set', desc: 'Include/exclude pattern', priority: 'high' },
-          { id: 't52', name: 'Permutations & Combinations', desc: 'With and without duplicates', priority: 'critical' },
-          { id: 't53', name: 'N-Queens', desc: 'Classic backtracking', priority: 'high' },
-          { id: 't54', name: 'Sudoku Solver', desc: 'Constraint propagation backtracking', priority: 'medium' },
-          { id: 't55', name: 'Word Search on Grid', desc: 'DFS + visited tracking', priority: 'high' },
-          { id: 't56', name: 'Trie — Insert, Search, StartsWith', desc: 'Prefix tree implementation', priority: 'high' },
-          { id: 't57', name: 'Word Break using Trie', desc: 'DP + Trie combination', priority: 'medium' },
-        ]
-      },
-      {
-        name: 'Week 8 — Dynamic Programming',
-        topics: [
-          { id: 't58', name: 'Memoization vs Tabulation', desc: 'Top-down vs bottom-up, space optimization', priority: 'critical' },
-          { id: 't59', name: '0/1 Knapsack & Variants', desc: 'Subset sum, equal partition, target sum', priority: 'critical' },
-          { id: 't60', name: 'Unbounded Knapsack', desc: 'Coin change, rod cutting', priority: 'critical' },
-          { id: 't61', name: 'Longest Common Subsequence', desc: 'LCS, edit distance, shortest common supersequence', priority: 'critical' },
-          { id: 't62', name: 'Longest Increasing Subsequence', desc: 'O(n²) and O(n log n) approaches', priority: 'high' },
-          { id: 't63', name: 'Matrix DP', desc: 'Unique paths, minimum path sum, maximal square', priority: 'high' },
-          { id: 't64', name: 'Interval DP', desc: 'Burst balloons, palindrome partitioning', priority: 'high' },
-          { id: 't65', name: 'DP on Trees', desc: 'House robber on tree, diameter', priority: 'medium' },
-          { id: 't66', name: 'Bit Manipulation Basics', desc: 'XOR tricks, power of 2, count set bits', priority: 'high' },
-        ]
-      }
+    id:'w1',name:'Week 1',title:'Arrays & Fundamentals',
+    groups:[
+    {name:'Core Concepts',topics:[
+      {id:'w1t1',name:'Time & Space Complexity (Big-O, Omega, Theta)',desc:'Master notation before anything else',priority:'critical',diff:'easy'},
+      {id:'w1t2',name:'Prefix Sum — Range Sum Queries',desc:'Build prefix array, answer in O(1)',priority:'critical',diff:'easy',striver:true},
+      {id:'w1t3',name:'Suffix Sum',desc:'Suffix array for right-side queries',priority:'high',diff:'easy'},
+      {id:'w1t4',name:'Contribution Technique',desc:'Element contribution to total answer across subarrays',priority:'high',diff:'medium'},
+      {id:'w1t5',name:'Carry Forward Technique',desc:'Running state across iterations',priority:'medium',diff:'easy'},
+    ]},
+    {name:'Striver A2Z — Arrays Easy',topics:[
+      {id:'w1t6',name:'Largest Element in Array',desc:'Linear scan O(n)',priority:'low',diff:'easy',striver:true},
+      {id:'w1t7',name:'Second Largest Element',desc:'Single pass, handle duplicates',priority:'medium',diff:'easy',striver:true},
+      {id:'w1t8',name:'Check Array Sorted',desc:'Adjacent element comparison',priority:'low',diff:'easy',striver:true},
+      {id:'w1t9',name:'Remove Duplicates from Sorted Array',desc:'Two pointer in-place',priority:'medium',diff:'easy',striver:true},
+      {id:'w1t10',name:'Left Rotate Array by One',desc:'Save first, shift left',priority:'low',diff:'easy',striver:true},
+      {id:'w1t11',name:'Rotate Array by K Places',desc:'Reversal algorithm O(n) O(1)',priority:'critical',diff:'medium',striver:true},
+      {id:'w1t12',name:'Move Zeros to End',desc:'Two pointer partition',priority:'medium',diff:'easy',striver:true},
+      {id:'w1t13',name:'Union of Two Sorted Arrays',desc:'Two pointer merge',priority:'medium',diff:'easy',striver:true},
+      {id:'w1t14',name:'Intersection of Two Sorted Arrays',desc:'Two pointer, handle duplicates',priority:'medium',diff:'easy',striver:true},
+      {id:'w1t15',name:'Missing Number (1 to N)',desc:'XOR or sum formula',priority:'critical',diff:'easy',striver:true},
+      {id:'w1t16',name:'Maximum Consecutive Ones',desc:'Single pass count reset',priority:'medium',diff:'easy',striver:true},
+      {id:'w1t17',name:'Single Number (XOR Trick)',desc:'XOR all elements',priority:'high',diff:'easy',striver:true},
+    ]},
+    {name:'Striver A2Z — Arrays Medium',topics:[
+      {id:'w1t18',name:'Two Sum',desc:'HashMap one-pass O(n)',priority:'critical',diff:'medium',striver:true},
+      {id:'w1t19',name:'Sort 0s 1s 2s (Dutch National Flag)',desc:'Three pointer partition',priority:'critical',diff:'medium',striver:true},
+      {id:'w1t20',name:'Majority Element (> n/2) — Boyer Moore',desc:'Voting algorithm',priority:'critical',diff:'medium',striver:true},
+      {id:'w1t21',name:'Maximum Subarray Sum — Kadane\'s Algorithm',desc:'Core DP pattern, must memorize',priority:'critical',diff:'medium',striver:true},
+      {id:'w1t22',name:'Maximum Product Subarray',desc:'Track max and min running product',priority:'high',diff:'medium',striver:true},
+      {id:'w1t23',name:'Stock Buy and Sell — Single Transaction',desc:'Track min so far, update profit',priority:'critical',diff:'medium',striver:true},
+      {id:'w1t24',name:'Rearrange Array by Sign',desc:'Positive at even, negative at odd indices',priority:'medium',diff:'medium',striver:true},
+      {id:'w1t25',name:'Next Permutation',desc:'Three step algorithm: find break, swap, reverse',priority:'critical',diff:'medium',striver:true},
+      {id:'w1t26',name:'Longest Subarray with K Sum (Positives)',desc:'Sliding window',priority:'high',diff:'medium',striver:true},
+      {id:'w1t27',name:'Longest Subarray with K Sum (Pos+Neg)',desc:'HashMap prefix sum',priority:'high',diff:'medium',striver:true},
+    ]},
+    {name:'Striver A2Z — Arrays Hard',topics:[
+      {id:'w1t28',name:'3 Sum — All Unique Triplets',desc:'Sort + two pointer, skip duplicates',priority:'critical',diff:'hard',striver:true},
+      {id:'w1t29',name:'4 Sum',desc:'Sort + two outer loops + two pointer',priority:'high',diff:'hard',striver:true},
+      {id:'w1t30',name:'Majority Element (> n/3)',desc:'Extended Boyer Moore with two candidates',priority:'high',diff:'hard',striver:true},
+      {id:'w1t31',name:'Grid Unique Paths',desc:'DP on 2D grid, combinatorics',priority:'critical',diff:'medium',striver:true},
+      {id:'w1t32',name:'Reverse Pairs (Merge Sort)',desc:'Count inversions variation',priority:'high',diff:'hard',striver:true},
+      {id:'w1t33',name:'Maximum Sum Rectangle in 2D Matrix',desc:'Kadane on column prefix sums',priority:'medium',diff:'hard',striver:true},
+    ]},
     ]
   },
   {
-    id: 'p2', label: 'Phase 2', title: 'Core Java Mastery', subtitle: '4 Weeks · Deep Dive Internals',
-    weight: 20,
-    groups: [
-      {
-        name: 'Week 9 — OOPs Deep Dive & Fundamentals',
-        topics: [
-          { id: 't67', name: 'OOPs — 4 Pillars with Scenarios', desc: 'Abstraction, encapsulation, polymorphism, inheritance edge cases', priority: 'critical' },
-          { id: 't68', name: 'Method Overloading vs Overriding Rules', desc: 'Return type covariance, exception narrowing, static dispatch', priority: 'critical' },
-          { id: 't69', name: 'Abstract Class vs Interface', desc: 'When to use which, default methods, diamond problem', priority: 'critical' },
-          { id: 't70', name: 'Constructor Chaining (this & super)', desc: 'Order of execution, super() first rule', priority: 'high' },
-          { id: 't71', name: 'Immutable Class Design', desc: 'Why String is immutable, how to create immutable classes', priority: 'critical' },
-          { id: 't72', name: 'equals() & hashCode() Contract', desc: 'What breaks when you override one without the other', priority: 'critical' },
-          { id: 't73', name: 'Comparable vs Comparator', desc: 'Natural ordering vs custom ordering', priority: 'high' },
-          { id: 't74', name: 'Exception Handling Depth', desc: 'Checked vs unchecked, try-with-resources, exception chaining', priority: 'critical' },
-          { id: 't75', name: 'Autoboxing Pitfalls', desc: 'Integer cache -128 to 127, == vs equals trap', priority: 'high' },
-          { id: 't76', name: 'Serialization & transient', desc: 'serialVersionUID, Externalizable, security risks', priority: 'medium' },
-        ]
-      },
-      {
-        name: 'Week 10 — Collections Internals',
-        topics: [
-          { id: 't77', name: 'HashMap Internals (Full Depth)', desc: 'Bucket array, hash collision, linked list to tree at 8, rehashing', priority: 'critical' },
-          { id: 't78', name: 'LinkedHashMap — LRU Connection', desc: 'Doubly linked list overlaid, access-order mode', priority: 'critical' },
-          { id: 't79', name: 'TreeMap & NavigableMap', desc: 'Red-Black tree, floorKey, ceilingKey, headMap, tailMap', priority: 'high' },
-          { id: 't80', name: 'ConcurrentHashMap Internals', desc: 'Java 7 segment locking vs Java 8 CAS on bucket head', priority: 'critical' },
-          { id: 't81', name: 'ArrayList vs LinkedList vs ArrayDeque', desc: 'Internal structures, time complexities, when to use each', priority: 'critical' },
-          { id: 't82', name: 'PriorityQueue Internals', desc: 'Backed by array heap, heapify on poll/offer', priority: 'high' },
-          { id: 't83', name: 'Fail-fast vs Fail-safe Iterators', desc: 'ConcurrentModificationException, CopyOnWriteArrayList', priority: 'high' },
-          { id: 't84', name: 'Collections Utility Methods', desc: 'Collections.sort, binarySearch, unmodifiableList, synchronizedList', priority: 'medium' },
-        ]
-      },
-      {
-        name: 'Week 11 — Concurrency (Most Differentiating)',
-        topics: [
-          { id: 't85', name: 'Thread Lifecycle & Creation', desc: 'Thread vs Runnable vs Callable, daemon threads, lifecycle states', priority: 'critical' },
-          { id: 't86', name: 'synchronized — All 3 Forms', desc: 'Instance method, static method, block — what is the monitor object', priority: 'critical' },
-          { id: 't87', name: 'volatile Keyword', desc: 'Visibility guarantee, NOT atomicity, double-checked locking pattern', priority: 'critical' },
-          { id: 't88', name: 'ReentrantLock & ReadWriteLock', desc: 'tryLock, lockInterruptibly, fairness, when over synchronized', priority: 'critical' },
-          { id: 't89', name: 'Atomic Classes & CAS', desc: 'AtomicInteger, AtomicReference, ABA problem', priority: 'high' },
-          { id: 't90', name: 'Deadlock — 4 Conditions & Prevention', desc: 'Detection via thread dumps, prevention via lock ordering', priority: 'critical' },
-          { id: 't91', name: 'ThreadPoolExecutor (All 5 Params)', desc: 'coreSize, maxSize, keepAlive, queue, rejectionHandler', priority: 'critical' },
-          { id: 't92', name: 'CompletableFuture', desc: 'thenApply vs thenCompose, allOf, anyOf, exceptionally, handle', priority: 'critical' },
-          { id: 't93', name: 'CountDownLatch, CyclicBarrier, Semaphore', desc: 'Use cases, differences, Phaser as flexible option', priority: 'high' },
-          { id: 't94', name: 'Java Memory Model & Happens-Before', desc: 'Why it matters, how volatile/synchronized establish ordering', priority: 'high' },
-          { id: 't95', name: 'ThreadLocal', desc: 'Per-thread data, memory leak risk in thread pools', priority: 'high' },
-        ]
-      },
-      {
-        name: 'Week 12 — JVM, Generics, Streams & Modern Java',
-        topics: [
-          { id: 't96', name: 'JVM Architecture', desc: 'Class loading hierarchy, runtime data areas, JIT compilation', priority: 'critical' },
-          { id: 't97', name: 'Garbage Collection Internals', desc: 'Generational GC, Young/Old gen, G1GC regions, GC tuning flags', priority: 'critical' },
-          { id: 't98', name: 'Reference Types', desc: 'Strong, soft, weak, phantom — use cases for each', priority: 'high' },
-          { id: 't99', name: 'Generics & Type Erasure', desc: 'PECS principle, bounded wildcards, why generics don\'t exist at runtime', priority: 'high' },
-          { id: 't100', name: 'Streams — Internals & Patterns', desc: 'Laziness, intermediate vs terminal, parallel stream pitfalls', priority: 'critical' },
-          { id: 't101', name: 'Collectors — All Key Ones', desc: 'groupingBy, partitioningBy, toMap, joining, custom collector', priority: 'high' },
-          { id: 't102', name: 'Optional — Correct Usage', desc: 'Never use get() alone, orElseGet vs orElse, map, flatMap', priority: 'high' },
-          { id: 't103', name: 'Java 8–17 Modern Features', desc: 'Records, sealed classes, pattern matching instanceof, switch expressions', priority: 'high' },
-          { id: 't104', name: 'Method References — 4 Types', desc: 'Static, instance (specific/arbitrary), constructor reference', priority: 'medium' },
-        ]
-      }
+    id:'w2',name:'Week 2',title:'Hashing, Strings & Sorting',
+    groups:[
+    {name:'Hashing Concepts',topics:[
+      {id:'w2t1',name:'HashMap Internals — Bucket, Load Factor, Collision',desc:'Understanding why O(1) amortized',priority:'critical',diff:'medium'},
+      {id:'w2t2',name:'HashSet Applications — Duplicates & Lookup',desc:'O(1) contains check use cases',priority:'high',diff:'easy'},
+      {id:'w2t3',name:'Two Sum — HashMap Approach',desc:'Classic one-pass HashMap',priority:'critical',diff:'easy',striver:true},
+      {id:'w2t4',name:'Longest Consecutive Sequence',desc:'HashSet O(n) — no sorting needed',priority:'critical',diff:'medium',striver:true},
+      {id:'w2t5',name:'Count Subarrays with XOR = K',desc:'Prefix XOR + HashMap',priority:'high',diff:'hard',striver:true},
+    ]},
+    {name:'Strings',topics:[
+      {id:'w2t6',name:'Reverse Words in String',desc:'Split, reverse, join or two-pointer',priority:'medium',diff:'medium',striver:true},
+      {id:'w2t7',name:'Longest Palindromic Substring',desc:'Expand around center O(n²)',priority:'critical',diff:'medium',striver:true},
+      {id:'w2t8',name:'Count Palindromic Substrings',desc:'Expand around center',priority:'high',diff:'medium',striver:true},
+      {id:'w2t9',name:'Anagram Groups',desc:'Sort key or frequency count HashMap',priority:'high',diff:'medium',striver:true},
+      {id:'w2t10',name:'Minimum Window Substring',desc:'Sliding window with char counts',priority:'critical',diff:'hard',striver:true},
+      {id:'w2t11',name:'String Compression',desc:'In-place two pointer write',priority:'medium',diff:'medium'},
+      {id:'w2t12',name:'Roman to Integer & Integer to Roman',desc:'Greedy lookup table',priority:'medium',diff:'medium',striver:true},
+      {id:'w2t13',name:'Implement atoi (String to Integer)',desc:'Edge cases: spaces, sign, overflow',priority:'medium',diff:'medium'},
+    ]},
+    {name:'Sorting',topics:[
+      {id:'w2t14',name:'Custom Sorting with Comparator/Lambda',desc:'Multi-field sorting in Java',priority:'critical',diff:'medium'},
+      {id:'w2t15',name:'Merge Sort — Divide & Conquer',desc:'Stable O(n log n), used in counting inversions',priority:'critical',diff:'medium',striver:true},
+      {id:'w2t16',name:'Quick Sort — Pivot & Partition',desc:'In-place, worst case O(n²)',priority:'high',diff:'medium',striver:true},
+      {id:'w2t17',name:'Count Inversions — Merge Sort',desc:'Count during merge step',priority:'high',diff:'hard',striver:true},
+      {id:'w2t18',name:'Merge Overlapping Intervals',desc:'Sort by start, merge greedily',priority:'critical',diff:'medium',striver:true},
+      {id:'w2t19',name:'Insert Interval',desc:'Find overlap window, merge',priority:'high',diff:'medium',striver:true},
+      {id:'w2t20',name:'Non-Overlapping Intervals (Min Removals)',desc:'Greedy — sort by end',priority:'high',diff:'medium',striver:true},
+    ]},
     ]
   },
   {
-    id: 'p3', label: 'Phase 3', title: 'Spring Boot & Backend', subtitle: '4 Weeks · Production-Grade Knowledge',
-    weight: 20,
-    groups: [
-      {
-        name: 'Week 13 — Spring Core & Boot',
-        topics: [
-          { id: 't105', name: 'IoC Container & Bean Lifecycle', desc: 'BeanFactory vs AppContext, instantiation → injection → PostConstruct → destroy', priority: 'critical' },
-          { id: 't106', name: 'Dependency Injection Types', desc: 'Constructor vs setter vs field injection, why constructor is best', priority: 'critical' },
-          { id: 't107', name: 'Bean Scopes', desc: 'Singleton, Prototype, Request, Session — injection scope mismatch problem', priority: 'critical' },
-          { id: 't108', name: 'Annotations Deep Dive', desc: '@Component vs @Service vs @Repository, @Autowired resolution order', priority: 'critical' },
-          { id: 't109', name: 'Spring Boot Auto-Configuration', desc: 'How @SpringBootApplication works, spring.factories, @Conditional annotations', priority: 'critical' },
-          { id: 't110', name: 'Profiles & External Config', desc: '@Profile, application-{env}.yml, @Value vs @ConfigurationProperties', priority: 'high' },
-          { id: 't111', name: 'Spring Events', desc: 'ApplicationEventPublisher, @EventListener, @Async events', priority: 'medium' },
-        ]
-      },
-      {
-        name: 'Week 14 — Spring MVC & REST',
-        topics: [
-          { id: 't112', name: 'DispatcherServlet Request Lifecycle', desc: 'HandlerMapping → HandlerAdapter → ViewResolver flow', priority: 'high' },
-          { id: 't113', name: 'REST Best Practices', desc: 'HTTP methods, status codes, @PathVariable vs @RequestParam vs @RequestBody', priority: 'critical' },
-          { id: 't114', name: 'Exception Handling — @ControllerAdvice', desc: '@ExceptionHandler, ResponseEntityExceptionHandler, ProblemDetail RFC 7807', priority: 'critical' },
-          { id: 't115', name: 'Validation — @Valid & Custom', desc: '@NotNull, @Size, @Pattern, custom constraint annotations', priority: 'high' },
-          { id: 't116', name: 'Filters vs Interceptors', desc: 'Servlet-level vs Spring-level, execution order, use cases', priority: 'high' },
-          { id: 't117', name: '@Transactional Deep Dive', desc: 'Propagation types, isolation levels, self-invocation problem, rollbackFor', priority: 'critical' },
-          { id: 't118', name: 'Spring AOP', desc: 'Aspect, pointcut, advice types, proxy-based weaving limitations', priority: 'high' },
-        ]
-      },
-      {
-        name: 'Week 15 — Data Layer & Databases',
-        topics: [
-          { id: 't119', name: 'JPA Entity Lifecycle', desc: 'Transient, managed, detached, removed — persistence context as L1 cache', priority: 'critical' },
-          { id: 't120', name: 'Entity Relationships', desc: '@OneToMany, @ManyToMany, CascadeType, mappedBy, @JoinColumn', priority: 'critical' },
-          { id: 't121', name: 'Fetch Types & N+1 Problem', desc: 'LAZY vs EAGER, JOIN FETCH, @EntityGraph, @BatchSize solutions', priority: 'critical' },
-          { id: 't122', name: 'Database Migrations (Flyway)', desc: 'Versioned & repeatable migrations, V1__init.sql convention', priority: 'critical' },
-          { id: 't123', name: 'HikariCP Connection Pool', desc: 'maximumPoolSize, connectionTimeout, maxLifetime tuning', priority: 'high' },
-          { id: 't124', name: 'SQL — Joins & Window Functions', desc: 'Self join, ROW_NUMBER, RANK, DENSE_RANK, LAG, LEAD, PARTITION BY', priority: 'critical' },
-          { id: 't125', name: 'SQL — Indexes In Depth', desc: 'B-tree structure, composite index order, covering index, EXPLAIN plan', priority: 'critical' },
-          { id: 't126', name: 'SQL — Transaction Isolation Levels', desc: 'Read Uncommitted, Read Committed, Repeatable Read, Serializable — anomalies', priority: 'critical' },
-          { id: 't127', name: 'Redis Data Structures', desc: 'String, List, Hash, Set, Sorted Set — use cases for each, TTL, persistence', priority: 'high' },
-          { id: 't128', name: 'NoSQL — Cassandra Basics', desc: 'Partition key, clustering key, wide row model, when to choose Cassandra', priority: 'medium' },
-          { id: 't129', name: 'MongoDB Aggregation Pipeline', desc: 'Document model, $match, $group, $lookup, indexing', priority: 'medium' },
-        ]
-      },
-      {
-        name: 'Week 16 — Security, Testing & Microservices',
-        topics: [
-          { id: 't130', name: 'Spring Security & JWT', desc: 'SecurityFilterChain, JWT header.payload.signature, validation, storage', priority: 'critical' },
-          { id: 't131', name: 'OAuth2 Basics', desc: 'Authorization code flow, resource server, client credentials', priority: 'high' },
-          { id: 't132', name: 'Unit Testing — JUnit 5 & Mockito', desc: '@ParameterizedTest, ArgumentCaptor, verify(), assertThrows', priority: 'critical' },
-          { id: 't133', name: 'Integration Testing & MockMvc', desc: '@SpringBootTest, @AutoConfigureMockMvc, @DataJpaTest', priority: 'high' },
-          { id: 't134', name: 'Testcontainers', desc: 'Real Docker DB/Redis in tests, @Testcontainers, @Container', priority: 'high' },
-          { id: 't135', name: 'Circuit Breaker — Resilience4j', desc: 'Closed/Open/Half-Open states, fallback, rate limiter, bulkhead', priority: 'high' },
-          { id: 't136', name: 'Kafka Internals', desc: 'Topic, partition, consumer group, offset, at-least-once vs exactly-once', priority: 'critical' },
-          { id: 't137', name: 'SAGA & CQRS Patterns', desc: 'Choreography vs orchestration, read/write model separation', priority: 'high' },
-          { id: 't138', name: 'Distributed Tracing', desc: 'Micrometer + Zipkin, trace ID, span ID propagation', priority: 'medium' },
-        ]
-      }
+    id:'w3',name:'Week 3',title:'Binary Search',
+    groups:[
+    {name:'Classic Binary Search',topics:[
+      {id:'w3t1',name:'Binary Search on Sorted Array',desc:'Standard template, understand lo/hi/mid',priority:'critical',diff:'easy',striver:true},
+      {id:'w3t2',name:'Lower Bound & Upper Bound',desc:'First position ≥ x, first position > x',priority:'critical',diff:'easy',striver:true},
+      {id:'w3t3',name:'First and Last Position of Target',desc:'Two binary searches',priority:'critical',diff:'medium',striver:true},
+      {id:'w3t4',name:'Count Occurrences in Sorted Array',desc:'Upper - Lower bound',priority:'medium',diff:'easy',striver:true},
+      {id:'w3t5',name:'Search Insert Position',desc:'Lower bound variant',priority:'medium',diff:'easy',striver:true},
+      {id:'w3t6',name:'Floor and Ceil of Target',desc:'Largest ≤ x, smallest ≥ x',priority:'high',diff:'easy',striver:true},
+    ]},
+    {name:'BS on Rotated/Modified Arrays',topics:[
+      {id:'w3t7',name:'Search in Rotated Sorted Array',desc:'Identify sorted half, eliminate',priority:'critical',diff:'medium',striver:true},
+      {id:'w3t8',name:'Find Minimum in Rotated Array',desc:'BS on unsorted side',priority:'critical',diff:'medium',striver:true},
+      {id:'w3t9',name:'Search in Rotated Array with Duplicates',desc:'Handle equal elements edge case',priority:'high',diff:'hard',striver:true},
+      {id:'w3t10',name:'Peak Element',desc:'Move toward rising side',priority:'critical',diff:'medium',striver:true},
+      {id:'w3t11',name:'Search in 2D Matrix (All Rows Sorted)',desc:'Treat as 1D, map index',priority:'critical',diff:'medium',striver:true},
+      {id:'w3t12',name:'Search in 2D Matrix II (Row+Col Sorted)',desc:'Start top-right, O(m+n)',priority:'high',diff:'medium',striver:true},
+      {id:'w3t13',name:'Row with Maximum 1s',desc:'Upper bound per row O(n log m)',priority:'medium',diff:'medium',striver:true},
+    ]},
+    {name:'Binary Search on Answer',topics:[
+      {id:'w3t14',name:'Square Root (Integer)',desc:'BS on answer 0..x',priority:'high',diff:'easy',striver:true},
+      {id:'w3t15',name:'Nth Root of M',desc:'BS with power check',priority:'high',diff:'medium',striver:true},
+      {id:'w3t16',name:'Koko Eating Bananas',desc:'Min speed — BS on 1..max(pile)',priority:'critical',diff:'medium',striver:true},
+      {id:'w3t17',name:'Minimum Days to Make Bouquets',desc:'BS on days, feasibility check',priority:'high',diff:'medium',striver:true},
+      {id:'w3t18',name:'Aggressive Cows',desc:'Maximize minimum distance — BS on answer',priority:'critical',diff:'hard',striver:true},
+      {id:'w3t19',name:'Allocate Books / Painter\'s Partition',desc:'Minimize maximum pages — BS on answer',priority:'critical',diff:'hard',striver:true},
+      {id:'w3t20',name:'Median of Two Sorted Arrays',desc:'BS on partition — O(log(min(m,n)))',priority:'critical',diff:'hard',striver:true},
+      {id:'w3t21',name:'K-th Element of Two Sorted Arrays',desc:'Binary elimination technique',priority:'high',diff:'hard',striver:true},
+      {id:'w3t22',name:'Split Array — Largest Sum',desc:'Same as painter\'s partition',priority:'high',diff:'hard',striver:true},
+    ]},
     ]
   },
   {
-    id: 'p4', label: 'Phase 4', title: 'Low Level Design', subtitle: '3 Weeks · Code Under Pressure',
-    weight: 15,
-    groups: [
-      {
-        name: 'Week 17 — SOLID & Design Patterns',
-        topics: [
-          { id: 't139', name: 'SRP — Single Responsibility', desc: 'Identify violations, refactor to separate concerns', priority: 'critical' },
-          { id: 't140', name: 'OCP — Open/Closed Principle', desc: 'Open for extension, closed for modification — Strategy pattern connection', priority: 'critical' },
-          { id: 't141', name: 'LSP — Liskov Substitution', desc: 'Square-Rectangle violation, behavioral subtyping', priority: 'high' },
-          { id: 't142', name: 'ISP — Interface Segregation', desc: 'Fat interfaces vs focused interfaces', priority: 'high' },
-          { id: 't143', name: 'DIP — Dependency Inversion', desc: 'Depend on abstractions, inject via constructor', priority: 'critical' },
-          { id: 't144', name: 'Singleton Pattern (Thread-Safe)', desc: 'Double-checked locking + volatile, enum-based singleton', priority: 'critical' },
-          { id: 't145', name: 'Factory & Abstract Factory', desc: 'Factory method vs abstract factory, when to use each', priority: 'high' },
-          { id: 't146', name: 'Builder Pattern', desc: 'Fluent API, telescoping constructor problem, immutable builders', priority: 'critical' },
-          { id: 't147', name: 'Strategy Pattern', desc: 'Algorithm family, interchangeable at runtime, payment/sorting strategies', priority: 'critical' },
-          { id: 't148', name: 'Observer Pattern', desc: 'One-to-many, event listeners, Spring ApplicationEvent connection', priority: 'high' },
-          { id: 't149', name: 'Decorator Pattern', desc: 'Dynamic behavior addition, Java I/O streams as examples', priority: 'high' },
-          { id: 't150', name: 'Proxy Pattern', desc: 'Virtual, protection, logging proxy — Spring AOP connection', priority: 'high' },
-          { id: 't151', name: 'Command Pattern', desc: 'Encapsulate request as object, undo/redo support', priority: 'medium' },
-          { id: 't152', name: 'Template Method Pattern', desc: 'Skeleton in base class, subclasses fill steps', priority: 'medium' },
-          { id: 't153', name: 'Chain of Responsibility', desc: 'Servlet filters, middleware pipeline', priority: 'medium' },
-          { id: 't154', name: 'State Pattern', desc: 'Behavior changes with state, vending machine, traffic light', priority: 'medium' },
-        ]
-      },
-      {
-        name: 'Week 18 & 19 — LLD Problem Practice',
-        topics: [
-          { id: 't155', name: 'LRU Cache (HashMap + DLL)', desc: 'MUST master — most common LLD problem, also LFU as follow-up', priority: 'critical' },
-          { id: 't156', name: 'Parking Lot System', desc: 'Multi-level, vehicle types, ticket, pricing strategy pattern', priority: 'critical' },
-          { id: 't157', name: 'BookMyShow — Movie Booking', desc: 'Show, seat reservation, concurrency handling', priority: 'critical' },
-          { id: 't158', name: 'Elevator System', desc: 'Multiple elevators, scheduling algorithm, state machine', priority: 'high' },
-          { id: 't159', name: 'Food Delivery System', desc: 'Restaurant, order, delivery assignment, real-time tracking', priority: 'high' },
-          { id: 't160', name: 'Splitwise / Bill Splitter', desc: 'Expense splitting, settle-up minimization algorithm', priority: 'high' },
-          { id: 't161', name: 'Logger Framework', desc: 'Log levels, appenders, formatters — Strategy + Observer', priority: 'high' },
-          { id: 't162', name: 'ATM Machine', desc: 'State machine approach, card validation, transaction', priority: 'high' },
-          { id: 't163', name: 'Library Management System', desc: 'Book catalog, member, borrowing, fine calculation', priority: 'medium' },
-          { id: 't164', name: 'Notification System', desc: 'Multiple channels, template engine, retry logic, priority', priority: 'medium' },
-        ]
-      }
+    id:'w4',name:'Week 4',title:'Linked Lists, Stacks & Queues',
+    groups:[
+    {name:'Linked List Striver Sheet',topics:[
+      {id:'w4t1',name:'Reverse Linked List (Iterative + Recursive)',desc:'Three pointer iterative, recursion call stack',priority:'critical',diff:'easy',striver:true},
+      {id:'w4t2',name:'Middle of Linked List',desc:'Fast-slow pointer',priority:'critical',diff:'easy',striver:true},
+      {id:'w4t3',name:'Merge Two Sorted Linked Lists',desc:'Dummy head technique',priority:'critical',diff:'easy',striver:true},
+      {id:'w4t4',name:'Remove Nth Node from End',desc:'Fast-slow with N gap',priority:'critical',diff:'medium',striver:true},
+      {id:'w4t5',name:'Delete Middle Node',desc:'Slow at middle using fast-slow',priority:'medium',diff:'medium',striver:true},
+      {id:'w4t6',name:'Detect Cycle in Linked List',desc:'Floyd\'s algorithm — detect + find entry',priority:'critical',diff:'medium',striver:true},
+      {id:'w4t7',name:'Find Starting Point of Cycle',desc:'After detection: reset one pointer to head',priority:'critical',diff:'medium',striver:true},
+      {id:'w4t8',name:'Check if Linked List is Palindrome',desc:'Find mid, reverse second half, compare',priority:'high',diff:'medium',striver:true},
+      {id:'w4t9',name:'Segregate Odd and Even Nodes',desc:'Two pointer partition by index',priority:'medium',diff:'medium',striver:true},
+      {id:'w4t10',name:'Remove Duplicates from Sorted LL',desc:'Skip nodes while val equals next val',priority:'medium',diff:'easy',striver:true},
+      {id:'w4t11',name:'Add Two Numbers (LL representation)',desc:'Digit by digit with carry',priority:'high',diff:'medium',striver:true},
+      {id:'w4t12',name:'Intersection Point of Two LLs',desc:'Length difference or two-pointer switch',priority:'critical',diff:'medium',striver:true},
+      {id:'w4t13',name:'Reverse Nodes in K-Group',desc:'Reverse chunks of size k recursively',priority:'high',diff:'hard',striver:true},
+      {id:'w4t14',name:'Rotate Linked List by K',desc:'Make circular then cut at right point',priority:'high',diff:'medium',striver:true},
+      {id:'w4t15',name:'Flatten a Multilevel/Linked List',desc:'DFS with child pointer',priority:'high',diff:'hard',striver:true},
+      {id:'w4t16',name:'Clone LL with Random Pointer',desc:'HashMap old→new or interleave approach',priority:'high',diff:'hard',striver:true},
+    ]},
+    {name:'LRU Cache (Critical LLD-DSA Bridge)',topics:[
+      {id:'w4t17',name:'LRU Cache — HashMap + Doubly Linked List',desc:'Most asked LLD problem, O(1) get and put',priority:'critical',diff:'hard',striver:true},
+      {id:'w4t18',name:'LFU Cache',desc:'Two HashMaps + DoublyLL, track frequency',priority:'high',diff:'hard'},
+    ]},
+    {name:'Stacks',topics:[
+      {id:'w4t19',name:'Valid Parentheses',desc:'Stack push/pop, empty at end',priority:'critical',diff:'easy',striver:true},
+      {id:'w4t20',name:'Min Stack — O(1) getMin()',desc:'Two stacks or encode delta',priority:'critical',diff:'medium',striver:true},
+      {id:'w4t21',name:'Next Greater Element I & II',desc:'Monotonic decreasing stack, circular array',priority:'critical',diff:'medium',striver:true},
+      {id:'w4t22',name:'Previous Smaller Element',desc:'Monotonic stack left sweep',priority:'high',diff:'medium',striver:true},
+      {id:'w4t23',name:'Largest Rectangle in Histogram',desc:'Monotonic stack, prev/next smaller',priority:'critical',diff:'hard',striver:true},
+      {id:'w4t24',name:'Maximal Rectangle in Binary Matrix',desc:'Histogram per row + largest rectangle',priority:'high',diff:'hard',striver:true},
+      {id:'w4t25',name:'Remove K Digits (Smallest Number)',desc:'Monotonic stack greedy',priority:'high',diff:'medium',striver:true},
+      {id:'w4t26',name:'Stock Span Problem',desc:'Monotonic stack, previous greater index',priority:'high',diff:'medium',striver:true},
+      {id:'w4t27',name:'Sum of Subarray Minimums',desc:'Contribution technique + monotonic stack',priority:'high',diff:'hard',striver:true},
+      {id:'w4t28',name:'Asteroid Collision',desc:'Stack simulation',priority:'medium',diff:'medium',striver:true},
+    ]},
+    {name:'Queues & Deques',topics:[
+      {id:'w4t29',name:'Sliding Window Maximum (Deque)',desc:'Monotonic deque O(n)',priority:'critical',diff:'hard',striver:true},
+      {id:'w4t30',name:'First Negative in Every Window of Size K',desc:'Deque index tracking',priority:'high',diff:'medium',striver:true},
+      {id:'w4t31',name:'Implement Queue using Two Stacks',desc:'Amortized O(1) dequeue',priority:'high',diff:'medium',striver:true},
+    ]},
     ]
   },
   {
-    id: 'p5', label: 'Phase 5', title: 'System Design', subtitle: '4 Weeks · Distributed Systems Mastery',
-    weight: 15,
-    groups: [
-      {
-        name: 'Week 20 — Distributed Systems Fundamentals',
-        topics: [
-          { id: 't165', name: 'Scalability — Horizontal vs Vertical', desc: 'Stateless services, session management in horizontal scaling', priority: 'critical' },
-          { id: 't166', name: 'Load Balancing', desc: 'L4 vs L7, algorithms, health checks, sticky sessions', priority: 'critical' },
-          { id: 't167', name: 'Caching Strategies', desc: 'Cache-aside, read/write-through, eviction, stampede, invalidation', priority: 'critical' },
-          { id: 't168', name: 'Database Scaling', desc: 'Read replicas, master-slave, sharding strategies, hotspot problem', priority: 'critical' },
-          { id: 't169', name: 'CAP Theorem & PACELC', desc: 'CP vs AP systems with real database examples, PACELC extension', priority: 'critical' },
-          { id: 't170', name: 'Consistent Hashing', desc: 'Virtual nodes, minimal redistribution, Cassandra/Dynamo use', priority: 'critical' },
-          { id: 't171', name: 'Rate Limiting Algorithms', desc: 'Token bucket, leaky bucket, fixed/sliding window, comparison', priority: 'critical' },
-          { id: 't172', name: 'Message Queues — Kafka vs RabbitMQ', desc: 'When to use each, Kafka internals, delivery guarantees', priority: 'critical' },
-          { id: 't173', name: 'CDN & Edge Caching', desc: 'Edge servers, origin pull, cache invalidation, use cases', priority: 'high' },
-          { id: 't174', name: 'API Gateway', desc: 'Routing, rate limiting, auth, SSL termination, service discovery', priority: 'high' },
-          { id: 't175', name: 'Bloom Filter', desc: 'Probabilistic data structure, false positives, space efficiency', priority: 'medium' },
-          { id: 't176', name: 'Distributed Locking (Redis)', desc: 'Redisson, Redlock algorithm, lock expiry, fencing tokens', priority: 'high' },
-        ]
-      },
-      {
-        name: 'Week 21 — Data & Storage Deep Dive',
-        topics: [
-          { id: 't177', name: 'SQL vs NoSQL Decision Framework', desc: 'When ACID matters, horizontal scale needs, data model fit', priority: 'critical' },
-          { id: 't178', name: 'Elasticsearch & Inverted Index', desc: 'Full-text search, analyzer pipeline, relevance scoring BM25', priority: 'high' },
-          { id: 't179', name: 'Time Series Databases', desc: 'InfluxDB/TimescaleDB, append-heavy workloads, retention policies', priority: 'medium' },
-          { id: 't180', name: 'Blob Storage & Pre-signed URLs', desc: 'S3 object storage, direct client upload, CDN integration', priority: 'high' },
-          { id: 't181', name: 'Event Sourcing', desc: 'Append-only event log, state reconstruction, difference from pub-sub', priority: 'high' },
-          { id: 't182', name: 'WebSockets vs Long Polling vs SSE', desc: 'When to use which, connection overhead, real-time requirements', priority: 'high' },
-        ]
-      },
-      {
-        name: 'Week 22 & 23 — System Design Problems',
-        topics: [
-          { id: 't183', name: 'Design Framework — RESHADED', desc: 'Requirements → Estimation → Storage → HLD → API → Data → Evaluate → Dive', priority: 'critical' },
-          { id: 't184', name: 'URL Shortener', desc: 'Hashing, redirect, analytics, base62 encoding, DB choice', priority: 'critical' },
-          { id: 't185', name: 'Rate Limiter System', desc: 'Algorithm choice, distributed state, Redis implementation', priority: 'critical' },
-          { id: 't186', name: 'WhatsApp / Chat System', desc: 'WebSockets, message ordering, delivery receipts, group scaling', priority: 'critical' },
-          { id: 't187', name: 'Instagram / Twitter Feed', desc: 'Fan-out push vs pull vs hybrid, celebrity problem, timeline gen', priority: 'critical' },
-          { id: 't188', name: 'Netflix / Video Streaming', desc: 'CDN, adaptive bitrate, content distribution, recommendation', priority: 'high' },
-          { id: 't189', name: 'Uber / Ride Sharing', desc: 'Geospatial indexing (quadtree/geohash), driver matching, surge', priority: 'high' },
-          { id: 't190', name: 'Search Autocomplete', desc: 'Trie + ranking + caching top queries + personalization', priority: 'high' },
-          { id: 't191', name: 'Distributed Job Scheduler', desc: 'At-least-once delivery, idempotency, cron, distributed locking', priority: 'high' },
-          { id: 't192', name: 'Web Crawler', desc: 'BFS frontier, politeness, deduplication, URL normalization', priority: 'medium' },
-          { id: 't193', name: 'Distributed Cache (Redis-like)', desc: 'Consistent hashing, replication, eviction, data partitioning', priority: 'high' },
-        ]
-      }
+    id:'w5',name:'Week 5',title:'Trees & Heaps',
+    groups:[
+    {name:'Binary Tree Traversals',topics:[
+      {id:'w5t1',name:'Inorder, Preorder, Postorder (Recursive)',desc:'Base cases and recursive structure',priority:'critical',diff:'easy',striver:true},
+      {id:'w5t2',name:'Iterative Inorder (Stack)',desc:'Morris traversal bonus',priority:'high',diff:'medium',striver:true},
+      {id:'w5t3',name:'Level Order Traversal (BFS)',desc:'Queue-based, level by level',priority:'critical',diff:'easy',striver:true},
+      {id:'w5t4',name:'Zigzag Level Order',desc:'Direction flag + deque',priority:'high',diff:'medium',striver:true},
+      {id:'w5t5',name:'Left View & Right View of Tree',desc:'First node per level in BFS',priority:'high',diff:'medium',striver:true},
+      {id:'w5t6',name:'Bottom View & Top View of Tree',desc:'Vertical order using HD (horizontal distance)',priority:'high',diff:'medium',striver:true},
+      {id:'w5t7',name:'Vertical Order Traversal',desc:'HD + level + value sort',priority:'high',diff:'hard',striver:true},
+      {id:'w5t8',name:'Boundary Traversal of Binary Tree',desc:'Left boundary + leaves + right boundary reversed',priority:'medium',diff:'medium',striver:true},
+    ]},
+    {name:'Binary Tree — Medium/Hard Problems',topics:[
+      {id:'w5t9',name:'Height / Maximum Depth of Binary Tree',desc:'DFS max of left/right + 1',priority:'critical',diff:'easy',striver:true},
+      {id:'w5t10',name:'Check Balanced Binary Tree',desc:'Height and balance check in one DFS',priority:'critical',diff:'medium',striver:true},
+      {id:'w5t11',name:'Diameter of Binary Tree',desc:'Max path through any node — update global max',priority:'critical',diff:'medium',striver:true},
+      {id:'w5t12',name:'Maximum Path Sum in Binary Tree',desc:'Return max single branch, update global',priority:'critical',diff:'hard',striver:true},
+      {id:'w5t13',name:'Check if Two Trees are Identical',desc:'Recursive structure comparison',priority:'medium',diff:'easy',striver:true},
+      {id:'w5t14',name:'Invert / Mirror Binary Tree',desc:'Swap children recursively',priority:'medium',diff:'easy',striver:true},
+      {id:'w5t15',name:'Symmetric Tree',desc:'Compare mirror images recursively',priority:'medium',diff:'easy',striver:true},
+      {id:'w5t16',name:'Path from Root to Node',desc:'DFS with backtracking',priority:'high',diff:'medium',striver:true},
+      {id:'w5t17',name:'Lowest Common Ancestor (Binary Tree)',desc:'LCA via DFS — left/right null check',priority:'critical',diff:'medium',striver:true},
+      {id:'w5t18',name:'Count Nodes in Complete Binary Tree',desc:'BS on last level O(log²n)',priority:'high',diff:'medium',striver:true},
+      {id:'w5t19',name:'Serialize & Deserialize Binary Tree',desc:'BFS string format or preorder+null markers',priority:'critical',diff:'hard',striver:true},
+      {id:'w5t20',name:'Flatten Tree to Linked List (In-place)',desc:'Morris-like right-threaded approach',priority:'high',diff:'medium',striver:true},
+      {id:'w5t21',name:'Construct Tree from Inorder + Preorder',desc:'Root is preorder[0], split inorder',priority:'critical',diff:'medium',striver:true},
+      {id:'w5t22',name:'Construct Tree from Inorder + Postorder',desc:'Root is postorder[last]',priority:'high',diff:'medium',striver:true},
+    ]},
+    {name:'BST Problems',topics:[
+      {id:'w5t23',name:'Search in BST',desc:'Compare val, go left or right',priority:'medium',diff:'easy',striver:true},
+      {id:'w5t24',name:'Insert into BST',desc:'Recursive insert at correct leaf',priority:'medium',diff:'medium',striver:true},
+      {id:'w5t25',name:'Delete Node in BST',desc:'Three cases: no child, one child, two children',priority:'high',diff:'medium',striver:true},
+      {id:'w5t26',name:'Validate BST',desc:'Pass min/max bounds recursively',priority:'critical',diff:'medium',striver:true},
+      {id:'w5t27',name:'Kth Smallest Element in BST',desc:'Inorder traversal count',priority:'critical',diff:'medium',striver:true},
+      {id:'w5t28',name:'Kth Largest Element in BST',desc:'Reverse inorder',priority:'high',diff:'medium',striver:true},
+      {id:'w5t29',name:'LCA in BST',desc:'Leverage BST ordering',priority:'high',diff:'medium',striver:true},
+      {id:'w5t30',name:'Construct BST from Preorder',desc:'Upper bound approach',priority:'medium',diff:'medium',striver:true},
+      {id:'w5t31',name:'BST to Greater Sum Tree',desc:'Reverse inorder running sum',priority:'medium',diff:'medium',striver:true},
+    ]},
+    {name:'Heaps & Priority Queue',topics:[
+      {id:'w5t32',name:'Build Min Heap & Max Heap',desc:'Heapify process, PriorityQueue in Java',priority:'critical',diff:'medium',striver:true},
+      {id:'w5t33',name:'Kth Largest Element in Array',desc:'Min heap of size k',priority:'critical',diff:'medium',striver:true},
+      {id:'w5t34',name:'Kth Smallest Element',desc:'Max heap of size k',priority:'critical',diff:'medium',striver:true},
+      {id:'w5t35',name:'Top K Frequent Elements',desc:'Min heap on frequency',priority:'critical',diff:'medium',striver:true},
+      {id:'w5t36',name:'Sort K Sorted Array',desc:'Min heap of size k+1',priority:'high',diff:'medium',striver:true},
+      {id:'w5t37',name:'Merge K Sorted Lists',desc:'PriorityQueue on node values',priority:'critical',diff:'hard',striver:true},
+      {id:'w5t38',name:'Find Median from Data Stream',desc:'Max-heap (lower) + min-heap (upper)',priority:'critical',diff:'hard',striver:true},
+      {id:'w5t39',name:'Task Scheduler',desc:'Greedy with max heap + cooldown',priority:'high',diff:'medium',striver:true},
+    ]},
     ]
   },
   {
-    id: 'p6', label: 'Phase 6', title: 'Interview Prep & Soft Skills', subtitle: '2 Weeks · Final 10% That Seals Offers',
-    weight: 5,
-    groups: [
-      {
-        name: 'Week 24 — Mock Interviews & Behavioral',
-        topics: [
-          { id: 't194', name: 'STAR Method — 10 Stories Prepared', desc: 'Failure, leadership, conflict, ambiguity, ownership, impact stories', priority: 'critical' },
-          { id: 't195', name: 'Timed Mock Interview Sessions', desc: '10+ sessions recorded — DSA, LLD, System Design rounds', priority: 'critical' },
-          { id: 't196', name: '"Tell Me About Yourself" (2-min version)', desc: 'Crisp career narrative, technical identity, what you\'re building toward', priority: 'critical' },
-          { id: 't197', name: 'Production Incident Story', desc: 'Root cause, impact, fix, what changed after — shows ownership', priority: 'high' },
-          { id: 't198', name: 'Technical Trade-off Discussion', desc: 'Practice explaining why you chose technology X over Y', priority: 'high' },
-        ]
-      },
-      {
-        name: 'Week 25 — Profile & Negotiation',
-        topics: [
-          { id: 't199', name: 'Resume — Impact Numbers', desc: 'Every bullet has a metric: latency, RPS, cost reduction, team size', priority: 'critical' },
-          { id: 't200', name: 'GitHub — 2 Solid Projects', desc: 'Spring Boot API + DB + tests + Docker + README + clean commits', priority: 'high' },
-          { id: 't201', name: 'LeetCode Profile 150+ Solved', desc: '60% medium, 20% easy, 20% hard — company-specific lists done', priority: 'critical' },
-          { id: 't202', name: 'Offer Negotiation Preparation', desc: 'Levels.fyi research, BATNA, total comp breakdown, competing offers', priority: 'critical' },
-          { id: 't203', name: 'Salary Research Done', desc: 'LinkedIn Salary, Glassdoor, Levels.fyi for your target companies', priority: 'high' },
-        ]
-      }
+    id:'w6',name:'Week 6',title:'Graphs',
+    groups:[
+    {name:'Graph Basics & Traversal',topics:[
+      {id:'w6t1',name:'Graph Representation — Adjacency List & Matrix',desc:'When to use which, space complexity',priority:'critical',diff:'easy',striver:true},
+      {id:'w6t2',name:'BFS on Graph',desc:'Queue-based, visited array, level-order',priority:'critical',diff:'easy',striver:true},
+      {id:'w6t3',name:'DFS on Graph',desc:'Recursive + iterative with stack',priority:'critical',diff:'easy',striver:true},
+      {id:'w6t4',name:'Number of Islands (Grid BFS/DFS)',desc:'Treat grid as graph, flood fill',priority:'critical',diff:'medium',striver:true},
+      {id:'w6t5',name:'Flood Fill Algorithm',desc:'DFS/BFS color replacement',priority:'high',diff:'easy',striver:true},
+      {id:'w6t6',name:'Rotting Oranges (Multi-source BFS)',desc:'Start BFS from all rotten simultaneously',priority:'critical',diff:'medium',striver:true},
+      {id:'w6t7',name:'01 Matrix — Distance of Nearest 0',desc:'Multi-source BFS from all 0s',priority:'high',diff:'medium',striver:true},
+      {id:'w6t8',name:'Surrounded Regions',desc:'BFS/DFS from boundary O marks',priority:'medium',diff:'medium',striver:true},
+    ]},
+    {name:'Cycle Detection & Bipartite',topics:[
+      {id:'w6t9',name:'Cycle Detection in Undirected Graph (BFS)',desc:'Track parent in BFS',priority:'critical',diff:'medium',striver:true},
+      {id:'w6t10',name:'Cycle Detection in Undirected Graph (DFS)',desc:'Visited and parent tracking',priority:'critical',diff:'medium',striver:true},
+      {id:'w6t11',name:'Cycle Detection in Directed Graph (DFS)',desc:'Rec stack (in-stack flag)',priority:'critical',diff:'medium',striver:true},
+      {id:'w6t12',name:'Bipartite Check (BFS Coloring)',desc:'Two-color graph, detect odd cycle',priority:'high',diff:'medium',striver:true},
+      {id:'w6t13',name:'Eventual Safe States',desc:'Reverse DFS — find nodes not in cycles',priority:'high',diff:'medium',striver:true},
+    ]},
+    {name:'Topological Sort & DAG',topics:[
+      {id:'w6t14',name:'Topological Sort — DFS Based',desc:'Post-order DFS, push to stack',priority:'critical',diff:'medium',striver:true},
+      {id:'w6t15',name:'Topological Sort — Kahn\'s BFS',desc:'In-degree array, process 0-indegree nodes',priority:'critical',diff:'medium',striver:true},
+      {id:'w6t16',name:'Course Schedule I & II',desc:'Topo sort cycle detection',priority:'critical',diff:'medium',striver:true},
+      {id:'w6t17',name:'Alien Dictionary (Topo Sort)',desc:'Build graph from word order comparisons',priority:'high',diff:'hard',striver:true},
+      {id:'w6t18',name:'Shortest Path in DAG',desc:'Topo sort then relax edges',priority:'high',diff:'medium',striver:true},
+    ]},
+    {name:'Shortest Path Algorithms',topics:[
+      {id:'w6t19',name:'Dijkstra\'s Algorithm',desc:'Priority queue, greedy shortest path',priority:'critical',diff:'medium',striver:true},
+      {id:'w6t20',name:'Bellman-Ford Algorithm',desc:'V-1 relaxations, detect negative cycle',priority:'high',diff:'medium',striver:true},
+      {id:'w6t21',name:'Floyd-Warshall Algorithm',desc:'All pairs shortest path O(V³)',priority:'high',diff:'medium',striver:true},
+      {id:'w6t22',name:'Word Ladder (BFS Shortest)',desc:'Level BFS on word transformations',priority:'critical',diff:'hard',striver:true},
+      {id:'w6t23',name:'Cheapest Flights within K Stops',desc:'Modified Dijkstra or Bellman-Ford with stop count',priority:'high',diff:'medium',striver:true},
+      {id:'w6t24',name:'Network Delay Time',desc:'Dijkstra single source',priority:'high',diff:'medium',striver:true},
+    ]},
+    {name:'Union-Find & MST',topics:[
+      {id:'w6t25',name:'Union-Find / Disjoint Set (Path Compression + Union by Rank)',desc:'O(α) amortized operations',priority:'critical',diff:'medium',striver:true},
+      {id:'w6t26',name:'Kruskal\'s MST Algorithm',desc:'Sort edges, union-find for cycle check',priority:'high',diff:'medium',striver:true},
+      {id:'w6t27',name:'Prim\'s MST Algorithm',desc:'Priority queue greedy edge selection',priority:'high',diff:'medium',striver:true},
+      {id:'w6t28',name:'Number of Connected Components',desc:'Union-Find or BFS/DFS count',priority:'high',diff:'medium',striver:true},
+      {id:'w6t29',name:'Redundant Connection',desc:'Union-Find detect first cycle edge',priority:'high',diff:'medium',striver:true},
+      {id:'w6t30',name:'Number of Operations to Make Connected',desc:'Components - 1 = cables needed',priority:'medium',diff:'medium',striver:true},
+    ]},
     ]
-  }
+  },
+  {
+    id:'w7',name:'Week 7',title:'Recursion, Backtracking & Trie',
+    groups:[
+    {name:'Recursion Foundations',topics:[
+      {id:'w7t1',name:'Recursion Tree Visualization — Draw Before Code',desc:'Non-negotiable mental habit for every recursive problem',priority:'critical',diff:'easy'},
+      {id:'w7t2',name:'Fibonacci — Memoization Introduction',desc:'Top-down DP introduction',priority:'high',diff:'easy',striver:true},
+      {id:'w7t3',name:'Power(x, n) — Fast Exponentiation',desc:'Recursive halving O(log n)',priority:'high',diff:'medium',striver:true},
+      {id:'w7t4',name:'Subsets / Power Set',desc:'Include-exclude at each index',priority:'critical',diff:'medium',striver:true},
+      {id:'w7t5',name:'Subsets II (with Duplicates)',desc:'Sort + skip duplicates at same level',priority:'high',diff:'medium',striver:true},
+    ]},
+    {name:'Backtracking — Striver Sheet',topics:[
+      {id:'w7t6',name:'Permutations I (Unique Elements)',desc:'Swap-based or visited-array approach',priority:'critical',diff:'medium',striver:true},
+      {id:'w7t7',name:'Permutations II (With Duplicates)',desc:'Sort + skip used duplicates',priority:'high',diff:'medium',striver:true},
+      {id:'w7t8',name:'Combination Sum I (Reuse Allowed)',desc:'Include same element multiple times',priority:'critical',diff:'medium',striver:true},
+      {id:'w7t9',name:'Combination Sum II (No Reuse)',desc:'Sort + skip duplicate at same level',priority:'critical',diff:'medium',striver:true},
+      {id:'w7t10',name:'Combination Sum III (K numbers sum N)',desc:'Backtrack with size constraint',priority:'high',diff:'medium',striver:true},
+      {id:'w7t11',name:'N-Queens',desc:'Row-by-row placement, col+diag check',priority:'critical',diff:'hard',striver:true},
+      {id:'w7t12',name:'N-Queens II — Count Solutions',desc:'Count valid placements',priority:'high',diff:'hard',striver:true},
+      {id:'w7t13',name:'Sudoku Solver',desc:'Constraint propagation backtracking',priority:'critical',diff:'hard',striver:true},
+      {id:'w7t14',name:'Word Search on Grid',desc:'DFS + visited in-place marking',priority:'critical',diff:'medium',striver:true},
+      {id:'w7t15',name:'Palindrome Partitioning',desc:'Backtrack all palindrome splits',priority:'high',diff:'medium',striver:true},
+      {id:'w7t16',name:'Rat in a Maze',desc:'DFS all possible paths',priority:'medium',diff:'medium',striver:true},
+      {id:'w7t17',name:'M-Coloring Problem',desc:'Backtrack valid color assignments',priority:'medium',diff:'medium',striver:true},
+    ]},
+    {name:'Trie',topics:[
+      {id:'w7t18',name:'Trie — Insert & Search',desc:'TrieNode with children array, isEnd flag',priority:'critical',diff:'medium',striver:true},
+      {id:'w7t19',name:'Trie — StartsWith (Prefix Search)',desc:'Same as search but no isEnd check',priority:'critical',diff:'easy',striver:true},
+      {id:'w7t20',name:'Count Words Equal To & Starting With Prefix',desc:'countEnd and countPrefix in each node',priority:'high',diff:'medium',striver:true},
+      {id:'w7t21',name:'Longest Word in Dictionary',desc:'BFS/DFS on Trie',priority:'medium',diff:'medium',striver:true},
+      {id:'w7t22',name:'Maximum XOR of Two Numbers (Bitwise Trie)',desc:'Insert binary representation, query greedily',priority:'high',diff:'hard',striver:true},
+    ]},
+    ]
+  },
+  {
+    id:'w8',name:'Week 8',title:'Dynamic Programming',
+    groups:[
+    {name:'DP Foundations',topics:[
+      {id:'w8t1',name:'Memoization vs Tabulation — Both Approaches',desc:'Top-down vs bottom-up, space optimization',priority:'critical',diff:'medium'},
+      {id:'w8t2',name:'Climbing Stairs',desc:'F(n) = F(n-1) + F(n-2)',priority:'critical',diff:'easy',striver:true},
+      {id:'w8t3',name:'Frog Jump (Min Cost — No K)',desc:'DP with absolute diff cost',priority:'critical',diff:'medium',striver:true},
+      {id:'w8t4',name:'Frog Jump with K Distances',desc:'DP over k previous states',priority:'high',diff:'medium',striver:true},
+      {id:'w8t5',name:'House Robber I & II',desc:'Max non-adjacent, circular array variant',priority:'critical',diff:'medium',striver:true},
+      {id:'w8t6',name:'Ninja\'s Training (2D DP)',desc:'Each day avoid last task — state transition',priority:'high',diff:'medium',striver:true},
+    ]},
+    {name:'Grid DP',topics:[
+      {id:'w8t7',name:'Unique Paths I & II',desc:'Robot in grid, obstacles variant',priority:'critical',diff:'medium',striver:true},
+      {id:'w8t8',name:'Minimum Path Sum in Grid',desc:'DP on grid with cost accumulation',priority:'critical',diff:'medium',striver:true},
+      {id:'w8t9',name:'Triangle — Minimum Path Sum',desc:'Bottom-up DP',priority:'high',diff:'medium',striver:true},
+      {id:'w8t10',name:'Cherry Pickup II (3D DP)',desc:'Two robots on grid simultaneously',priority:'medium',diff:'hard',striver:true},
+      {id:'w8t11',name:'Maximal Square',desc:'dp[i][j] = min(left, up, diag) + 1',priority:'high',diff:'medium',striver:true},
+    ]},
+    {name:'Subsequences & Subsets DP',topics:[
+      {id:'w8t12',name:'0/1 Knapsack',desc:'Include or exclude each item',priority:'critical',diff:'medium',striver:true},
+      {id:'w8t13',name:'Subset Sum Equals Target',desc:'Boolean DP table',priority:'critical',diff:'medium',striver:true},
+      {id:'w8t14',name:'Partition Equal Subset Sum',desc:'Subset sum with target = total/2',priority:'critical',diff:'medium',striver:true},
+      {id:'w8t15',name:'Count Subsets with Given Sum',desc:'Count DP, not boolean',priority:'high',diff:'medium',striver:true},
+      {id:'w8t16',name:'Minimum Subset Sum Difference',desc:'Find closest to total/2 in DP',priority:'high',diff:'medium',striver:true},
+      {id:'w8t17',name:'Count Partitions with Given Difference',desc:'Transform to count subsets',priority:'high',diff:'medium',striver:true},
+      {id:'w8t18',name:'0/1 Knapsack — Space Optimized',desc:'1D array bottom-up right to left',priority:'critical',diff:'medium',striver:true},
+      {id:'w8t19',name:'Unbounded Knapsack',desc:'Same item multiple times — left to right',priority:'critical',diff:'medium',striver:true},
+      {id:'w8t20',name:'Rod Cutting Problem',desc:'Unbounded knapsack variant',priority:'high',diff:'medium',striver:true},
+      {id:'w8t21',name:'Coin Change I — Minimum Coins',desc:'Unbounded DP, min coins for amount',priority:'critical',diff:'medium',striver:true},
+      {id:'w8t22',name:'Coin Change II — Count Ways',desc:'Count combinations, not permutations',priority:'critical',diff:'medium',striver:true},
+    ]},
+    {name:'String DP',topics:[
+      {id:'w8t23',name:'Longest Common Subsequence',desc:'LCS table — foundation for many problems',priority:'critical',diff:'medium',striver:true},
+      {id:'w8t24',name:'Print LCS',desc:'Backtrack the DP table',priority:'high',diff:'medium',striver:true},
+      {id:'w8t25',name:'Longest Common Substring',desc:'Reset on mismatch (not subsequence)',priority:'high',diff:'medium',striver:true},
+      {id:'w8t26',name:'Edit Distance',desc:'Insert/delete/replace — classic',priority:'critical',diff:'hard',striver:true},
+      {id:'w8t27',name:'Shortest Common Supersequence',desc:'LCS + both strings non-LCS chars',priority:'high',diff:'hard',striver:true},
+      {id:'w8t28',name:'Distinct Subsequences',desc:'Count ways s matches t as subsequence',priority:'high',diff:'hard',striver:true},
+      {id:'w8t29',name:'Wildcard Matching',desc:'? and * DP transition',priority:'high',diff:'hard',striver:true},
+      {id:'w8t30',name:'Is Subsequence',desc:'Two pointer O(n)',priority:'medium',diff:'easy',striver:true},
+    ]},
+    {name:'LIS & Stock Problems',topics:[
+      {id:'w8t31',name:'Longest Increasing Subsequence — O(n²)',desc:'Classic DP with inner loop',priority:'critical',diff:'medium',striver:true},
+      {id:'w8t32',name:'LIS — O(n log n) Patience Sort',desc:'Binary search with tails array',priority:'critical',diff:'hard',striver:true},
+      {id:'w8t33',name:'Largest Divisible Subset',desc:'LIS variant with divisibility condition',priority:'medium',diff:'medium',striver:true},
+      {id:'w8t34',name:'Number of LIS',desc:'Track count array alongside dp array',priority:'high',diff:'hard',striver:true},
+      {id:'w8t35',name:'Buy/Sell Stock — At Most 2 Transactions',desc:'4-state DP',priority:'high',diff:'hard',striver:true},
+      {id:'w8t36',name:'Buy/Sell Stock — At Most K Transactions',desc:'2K-state DP',priority:'high',diff:'hard',striver:true},
+      {id:'w8t37',name:'Buy/Sell Stock with Cooldown',desc:'3-state DP: hold/sold/rest',priority:'high',diff:'medium',striver:true},
+      {id:'w8t38',name:'Buy/Sell Stock with Transaction Fee',desc:'Two-state DP with fee deduction',priority:'high',diff:'medium',striver:true},
+    ]},
+    {name:'MCM & Advanced DP',topics:[
+      {id:'w8t39',name:'Matrix Chain Multiplication',desc:'Interval DP, try all split points',priority:'critical',diff:'hard',striver:true},
+      {id:'w8t40',name:'Minimum Cost to Cut a Stick',desc:'MCM variant — cut cost is length of stick',priority:'high',diff:'hard',striver:true},
+      {id:'w8t41',name:'Burst Balloons',desc:'Reverse thinking: last balloon to burst',priority:'high',diff:'hard',striver:true},
+      {id:'w8t42',name:'Boolean Parenthesization',desc:'Count ways to make expression true',priority:'medium',diff:'hard',striver:true},
+      {id:'w8t43',name:'Palindrome Partitioning II — Min Cuts',desc:'MCM + palindrome check DP',priority:'high',diff:'hard',striver:true},
+      {id:'w8t44',name:'Word Break Problem',desc:'Segment DP with dictionary',priority:'critical',diff:'medium',striver:true},
+    ]},
+    ]
+  },
+  ]
+},
+{
+  id:'p2',label:'Phase 2',title:'Core Java Mastery',color:'#16a34a',light:'#f0fdf4',
+  weeks:[
+  {id:'w9',name:'Week 9',title:'OOPs Deep Dive & Java Fundamentals',
+    groups:[
+    {name:'OOPs Concepts',topics:[
+      {id:'p2t1',name:'4 Pillars with Interview Scenarios',desc:'Abstraction, encapsulation, polymorphism, inheritance — edge cases',priority:'critical',diff:'medium'},
+      {id:'p2t2',name:'Method Overloading vs Overriding Rules',desc:'Return type covariance, exception narrowing, static dispatch',priority:'critical',diff:'medium'},
+      {id:'p2t3',name:'Abstract Class vs Interface Decision',desc:'Default methods, diamond problem, when to use which',priority:'critical',diff:'medium'},
+      {id:'p2t4',name:'Constructor Chaining (this() & super())',desc:'Order of execution, super() must be first',priority:'high',diff:'medium'},
+      {id:'p2t5',name:'Immutable Class Design',desc:'Why String is immutable, how to create custom immutable',priority:'critical',diff:'medium'},
+      {id:'p2t6',name:'equals() & hashCode() Contract',desc:'What breaks if you override one without other',priority:'critical',diff:'medium'},
+      {id:'p2t7',name:'Comparable vs Comparator',desc:'Natural ordering vs external, when each is appropriate',priority:'high',diff:'easy'},
+    ]},
+    {name:'Java Fundamentals',topics:[
+      {id:'p2t8',name:'Exception Handling — Checked vs Unchecked',desc:'try-with-resources, exception chaining, custom exceptions',priority:'critical',diff:'medium'},
+      {id:'p2t9',name:'Autoboxing Pitfalls — Integer Cache Trap',desc:'Integer == for -128 to 127 returns true, > 127 does not',priority:'critical',diff:'medium'},
+      {id:'p2t10',name:'String Pool & intern()',desc:'String literal vs new String(), when intern() matters',priority:'high',diff:'medium'},
+      {id:'p2t11',name:'final — Class, Method, Variable',desc:'Immutability, extensibility, blank final variables',priority:'high',diff:'easy'},
+      {id:'p2t12',name:'static Keyword — All Contexts',desc:'static fields, methods, blocks, inner classes',priority:'high',diff:'medium'},
+      {id:'p2t13',name:'Serialization — serialVersionUID & transient',desc:'Externalizable, security risks, serialization proxy',priority:'medium',diff:'medium'},
+      {id:'p2t14',name:'Java Type System & Casting',desc:'Widening/narrowing, ClassCastException, instanceof',priority:'medium',diff:'medium'},
+    ]},
+    ]
+  },
+  {id:'w10',name:'Week 10',title:'Collections Internals',
+    groups:[
+    {name:'Map Internals',topics:[
+      {id:'p2t15',name:'HashMap Internals (Full Depth)',desc:'Bucket array, hash collision, LL → tree at threshold 8, rehashing at 0.75',priority:'critical',diff:'hard'},
+      {id:'p2t16',name:'LinkedHashMap — LRU Connection',desc:'Doubly linked list overlaid, insertion-order vs access-order',priority:'critical',diff:'hard'},
+      {id:'p2t17',name:'TreeMap & NavigableMap',desc:'Red-Black tree, floorKey, ceilingKey, headMap, tailMap — O(log n)',priority:'high',diff:'medium'},
+      {id:'p2t18',name:'ConcurrentHashMap Internals',desc:'Java 7: segment locking. Java 8: CAS + sync on individual bucket head',priority:'critical',diff:'hard'},
+      {id:'p2t19',name:'WeakHashMap & IdentityHashMap',desc:'GC-eligible keys, reference equality instead of equals()',priority:'medium',diff:'medium'},
+    ]},
+    {name:'List, Set & Queue',topics:[
+      {id:'p2t20',name:'ArrayList vs LinkedList vs ArrayDeque',desc:'Dynamic array vs doubly LL, ArrayDeque faster for stack/queue',priority:'critical',diff:'medium'},
+      {id:'p2t21',name:'PriorityQueue Internals',desc:'Binary heap backed by array, heapify on poll/offer',priority:'high',diff:'medium'},
+      {id:'p2t22',name:'HashSet vs LinkedHashSet vs TreeSet',desc:'Internal delegation to Maps, ordering guarantees',priority:'high',diff:'medium'},
+      {id:'p2t23',name:'Fail-fast vs Fail-safe Iterators',desc:'ConcurrentModificationException, CopyOnWriteArrayList trade-offs',priority:'high',diff:'medium'},
+      {id:'p2t24',name:'Collections Utility Class',desc:'sort, binarySearch, unmodifiableList, synchronizedList, frequency',priority:'medium',diff:'easy'},
+    ]},
+    ]
+  },
+  {id:'w11',name:'Week 11',title:'Concurrency — The Differentiator',
+    groups:[
+    {name:'Core Threading',topics:[
+      {id:'p2t25',name:'Thread Lifecycle & Creation',desc:'Thread vs Runnable vs Callable, daemon threads, 6 lifecycle states',priority:'critical',diff:'medium'},
+      {id:'p2t26',name:'synchronized — All 3 Forms',desc:'Instance method, static method, block — identify the monitor object each time',priority:'critical',diff:'hard'},
+      {id:'p2t27',name:'volatile — Visibility NOT Atomicity',desc:'Flushes to main memory, double-checked locking pattern',priority:'critical',diff:'hard'},
+      {id:'p2t28',name:'ReentrantLock & ReadWriteLock',desc:'tryLock with timeout, lockInterruptibly, fairness, stampedLock',priority:'critical',diff:'hard'},
+      {id:'p2t29',name:'Atomic Classes & CAS',desc:'AtomicInteger, AtomicReference, ABA problem and solutions',priority:'high',diff:'hard'},
+      {id:'p2t30',name:'Deadlock — 4 Conditions & Prevention',desc:'Detection via jstack thread dumps, lock ordering strategy',priority:'critical',diff:'hard'},
+      {id:'p2t31',name:'ThreadLocal — Use & Memory Leak Risk',desc:'Per-thread storage, remove() in thread pools to prevent leak',priority:'high',diff:'medium'},
+    ]},
+    {name:'Executor Framework',topics:[
+      {id:'p2t32',name:'ThreadPoolExecutor — All 5 Parameters',desc:'coreSize, maxSize, keepAlive, workQueue type, rejectionHandler',priority:'critical',diff:'hard'},
+      {id:'p2t33',name:'Types of Thread Pools & Why to Avoid Executors.*',desc:'Unbounded queue in newFixedThreadPool causes OOM',priority:'critical',diff:'medium'},
+      {id:'p2t34',name:'CompletableFuture — Full API',desc:'thenApply vs thenCompose, thenCombine, allOf, anyOf, exceptionally',priority:'critical',diff:'hard'},
+      {id:'p2t35',name:'CountDownLatch, CyclicBarrier, Semaphore',desc:'One-time, reusable barrier, resource permit — know differences',priority:'high',diff:'medium'},
+      {id:'p2t36',name:'Java Memory Model & Happens-Before',desc:'Why code reordering happens, how volatile/sync establish ordering',priority:'high',diff:'hard'},
+    ]},
+    ]
+  },
+  {id:'w12',name:'Week 12',title:'JVM, Streams & Modern Java',
+    groups:[
+    {name:'JVM Internals',topics:[
+      {id:'p2t37',name:'JVM Architecture & Class Loading',desc:'Bootstrap→Extension→App classloader hierarchy, class initialization',priority:'critical',diff:'hard'},
+      {id:'p2t38',name:'Garbage Collection — G1GC Deep Dive',desc:'Young/Old gen, Eden+S0+S1, G1GC regions, GC tuning -Xms -Xmx',priority:'critical',diff:'hard'},
+      {id:'p2t39',name:'Reference Types — Strong/Soft/Weak/Phantom',desc:'GC behavior for each, use in caches and cleanup',priority:'high',diff:'medium'},
+      {id:'p2t40',name:'JIT Compilation & HotSpot Optimization',desc:'Interpreted → compiled, escape analysis, inlining',priority:'medium',diff:'hard'},
+    ]},
+    {name:'Generics & Streams',topics:[
+      {id:'p2t41',name:'Generics — Type Erasure & PECS',desc:'? extends (producer), ? super (consumer), why generics are compile-time only',priority:'high',diff:'medium'},
+      {id:'p2t42',name:'Stream Internals — Laziness & Spliterator',desc:'Intermediate ops are lazy, terminal triggers pipeline, parallel stream',priority:'critical',diff:'hard'},
+      {id:'p2t43',name:'Collectors — groupingBy, partitioningBy, toMap',desc:'Custom collector interface, downstream collectors',priority:'high',diff:'medium'},
+      {id:'p2t44',name:'Optional — Correct Patterns',desc:'Never get() without check, orElseGet vs orElse, map, flatMap',priority:'high',diff:'medium'},
+      {id:'p2t45',name:'Modern Java 8–21 Features',desc:'Records, sealed classes, pattern matching instanceof, switch expressions, virtual threads',priority:'high',diff:'medium'},
+    ]},
+    ]
+  },
+  ]
+},
+{
+  id:'p3',label:'Phase 3',title:'Spring Boot & Backend',color:'#ea580c',light:'#fff7ed',
+  weeks:[
+  {id:'w13',name:'Week 13',title:'Spring Core & Boot',
+    groups:[
+    {name:'IoC & DI',topics:[
+      {id:'p3t1',name:'IoC Container & Bean Lifecycle',desc:'BeanFactory vs AppContext, instantiation → PostConstruct → use → PreDestroy',priority:'critical',diff:'medium'},
+      {id:'p3t2',name:'Constructor vs Setter vs Field Injection',desc:'Constructor is best — immutable, testable, explicit dependencies',priority:'critical',diff:'easy'},
+      {id:'p3t3',name:'Bean Scopes — Singleton vs Prototype',desc:'Request/Session scope, injection scope mismatch problem',priority:'critical',diff:'medium'},
+      {id:'p3t4',name:'@Component vs @Service vs @Repository vs @Controller',desc:'Functional differences — @Repository enables exception translation',priority:'critical',diff:'easy'},
+      {id:'p3t5',name:'@Autowired Resolution Order',desc:'By type → by name → @Qualifier, @Primary',priority:'high',diff:'medium'},
+      {id:'p3t6',name:'Spring Boot Auto-Configuration',desc:'@SpringBootApplication = @Config + @EnableAutoConfig + @ComponentScan',priority:'critical',diff:'hard'},
+      {id:'p3t7',name:'Conditional Annotations',desc:'@ConditionalOnClass, @ConditionalOnProperty, @ConditionalOnMissingBean',priority:'high',diff:'medium'},
+      {id:'p3t8',name:'Profiles & External Config',desc:'@Profile, application-{env}.yml, @ConfigurationProperties',priority:'high',diff:'easy'},
+    ]},
+    ]
+  },
+  {id:'w14',name:'Week 14',title:'Spring MVC & REST',
+    groups:[
+    {name:'REST & Request Handling',topics:[
+      {id:'p3t9',name:'DispatcherServlet Request Lifecycle',desc:'HandlerMapping → HandlerAdapter → ViewResolver',priority:'high',diff:'medium'},
+      {id:'p3t10',name:'REST Best Practices & HTTP Semantics',desc:'Idempotency, proper status codes, @PathVariable vs @RequestParam',priority:'critical',diff:'medium'},
+      {id:'p3t11',name:'Exception Handling — @ControllerAdvice',desc:'@ExceptionHandler, ProblemDetail RFC 7807, custom error responses',priority:'critical',diff:'medium'},
+      {id:'p3t12',name:'Validation — @Valid & Custom Constraints',desc:'@NotNull, @Size, custom @Constraint annotations, @Validated groups',priority:'high',diff:'medium'},
+      {id:'p3t13',name:'Filters vs Interceptors',desc:'Servlet-level vs Spring-level, execution order, use cases',priority:'high',diff:'medium'},
+    ]},
+    {name:'Transactions & AOP',topics:[
+      {id:'p3t14',name:'@Transactional Propagation Types',desc:'REQUIRED, REQUIRES_NEW, NESTED — self-invocation problem',priority:'critical',diff:'hard'},
+      {id:'p3t15',name:'Transaction Isolation Levels in Spring',desc:'Read Committed default, isolation anomalies',priority:'critical',diff:'hard'},
+      {id:'p3t16',name:'Spring AOP — Aspects & Pointcuts',desc:'Before/After/Around advice, proxy-based weaving limitations',priority:'high',diff:'hard'},
+    ]},
+    ]
+  },
+  {id:'w15',name:'Week 15',title:'Data Layer & Databases',
+    groups:[
+    {name:'JPA & Hibernate',topics:[
+      {id:'p3t17',name:'JPA Entity Lifecycle',desc:'Transient → Managed → Detached → Removed, persistence context as L1 cache',priority:'critical',diff:'hard'},
+      {id:'p3t18',name:'Entity Relationships & CascadeType',desc:'@OneToMany, @ManyToMany, mappedBy, @JoinColumn, cascade options',priority:'critical',diff:'hard'},
+      {id:'p3t19',name:'Fetch Types & N+1 Problem',desc:'LAZY vs EAGER, solve with JOIN FETCH, @EntityGraph, @BatchSize',priority:'critical',diff:'hard'},
+      {id:'p3t20',name:'Database Migrations — Flyway',desc:'Versioned V1__init.sql, repeatable, baseline on migrate',priority:'critical',diff:'medium'},
+      {id:'p3t21',name:'HikariCP Connection Pool Tuning',desc:'maximumPoolSize, connectionTimeout, maxLifetime',priority:'high',diff:'medium'},
+    ]},
+    {name:'SQL Mastery',topics:[
+      {id:'p3t22',name:'Complex SQL Joins (Including Self Join)',desc:'INNER, LEFT, RIGHT, FULL OUTER, CROSS, self join',priority:'critical',diff:'medium'},
+      {id:'p3t23',name:'Window Functions',desc:'ROW_NUMBER, RANK, DENSE_RANK, LAG, LEAD, FIRST_VALUE, NTILE, PARTITION BY',priority:'critical',diff:'hard'},
+      {id:'p3t24',name:'GROUP BY, HAVING, CTEs',desc:'WITH clause, recursive CTEs',priority:'high',diff:'medium'},
+      {id:'p3t25',name:'Index Internals — B-tree, Composite, Covering',desc:'Index column order matters, EXPLAIN plan, when NOT to index',priority:'critical',diff:'hard'},
+      {id:'p3t26',name:'Transaction Isolation Levels (SQL)',desc:'Dirty read, non-repeatable read, phantom read — which level prevents what',priority:'critical',diff:'hard'},
+    ]},
+    {name:'NoSQL',topics:[
+      {id:'p3t27',name:'Redis Data Structures & Use Cases',desc:'String, List, Hash, Set, Sorted Set, TTL, RDB vs AOF persistence',priority:'high',diff:'medium'},
+      {id:'p3t28',name:'Cassandra — Partition Key & Clustering Key',desc:'Wide row model, when to choose Cassandra',priority:'medium',diff:'hard'},
+      {id:'p3t29',name:'MongoDB Aggregation Pipeline',desc:'$match, $group, $lookup, $project, $sort',priority:'medium',diff:'medium'},
+    ]},
+    ]
+  },
+  {id:'w16',name:'Week 16',title:'Security, Testing & Microservices',
+    groups:[
+    {name:'Security',topics:[
+      {id:'p3t30',name:'Spring Security & JWT',desc:'SecurityFilterChain, JWT header.payload.signature, validation, BCryptPasswordEncoder',priority:'critical',diff:'hard'},
+      {id:'p3t31',name:'OAuth2 Basics',desc:'Authorization code flow, resource server, client credentials grant',priority:'high',diff:'medium'},
+      {id:'p3t32',name:'Method-Level Security',desc:'@PreAuthorize, @PostAuthorize, SpEL expressions',priority:'medium',diff:'medium'},
+    ]},
+    {name:'Testing',topics:[
+      {id:'p3t33',name:'JUnit 5 & Mockito Mastery',desc:'@ParameterizedTest, ArgumentCaptor, verify(), assertThrows, @InjectMocks',priority:'critical',diff:'medium'},
+      {id:'p3t34',name:'Integration Testing — @SpringBootTest & MockMvc',desc:'@AutoConfigureMockMvc, @DataJpaTest, @WebMvcTest',priority:'critical',diff:'medium'},
+      {id:'p3t35',name:'Testcontainers',desc:'Real Docker PostgreSQL/Redis in tests, @Testcontainers, @Container',priority:'high',diff:'medium'},
+    ]},
+    {name:'Microservices',topics:[
+      {id:'p3t36',name:'Circuit Breaker — Resilience4j',desc:'Closed/Open/Half-Open, fallback, rate limiter, bulkhead',priority:'high',diff:'medium'},
+      {id:'p3t37',name:'Kafka Internals',desc:'Topic, partition, consumer group, offset, at-least-once vs exactly-once',priority:'critical',diff:'hard'},
+      {id:'p3t38',name:'SAGA Pattern — Choreography vs Orchestration',desc:'Distributed transactions, eventual consistency trade-offs',priority:'high',diff:'hard'},
+      {id:'p3t39',name:'CQRS Pattern',desc:'Separate read/write models, projection, sync via events',priority:'high',diff:'hard'},
+      {id:'p3t40',name:'Distributed Tracing — Micrometer + Zipkin',desc:'Trace ID, span ID propagation, sampling',priority:'medium',diff:'medium'},
+    ]},
+    ]
+  },
+  ]
+},
+{
+  id:'p4',label:'Phase 4',title:'Low Level Design',color:'#7c3aed',light:'#f5f3ff',
+  weeks:[
+  {id:'w17',name:'Week 17',title:'SOLID & Design Patterns',
+    groups:[
+    {name:'SOLID Principles',topics:[
+      {id:'p4t1',name:'SRP — Single Responsibility',desc:'Identify violations, UserService that also sends email is wrong',priority:'critical',diff:'medium'},
+      {id:'p4t2',name:'OCP — Open/Closed Principle',desc:'Open for extension via Strategy, closed for modification',priority:'critical',diff:'medium'},
+      {id:'p4t3',name:'LSP — Liskov Substitution',desc:'Square-Rectangle violation, behavioral subtyping',priority:'high',diff:'hard'},
+      {id:'p4t4',name:'ISP — Interface Segregation',desc:'Fat interfaces vs focused, no forced empty implementations',priority:'high',diff:'medium'},
+      {id:'p4t5',name:'DIP — Dependency Inversion',desc:'Inject interfaces not concretions, high-level ≠ depend on low-level',priority:'critical',diff:'medium'},
+    ]},
+    {name:'Creational Patterns',topics:[
+      {id:'p4t6',name:'Singleton — Thread-Safe (Double-Checked + volatile)',desc:'Also enum-based singleton — the safest approach',priority:'critical',diff:'hard'},
+      {id:'p4t7',name:'Factory Method vs Abstract Factory',desc:'One product vs family of products',priority:'high',diff:'medium'},
+      {id:'p4t8',name:'Builder Pattern — Fluent API',desc:'Telescoping constructor problem, immutable builder',priority:'critical',diff:'medium'},
+      {id:'p4t9',name:'Prototype — clone() vs Copy Constructor',desc:'Shallow vs deep copy trade-offs',priority:'medium',diff:'medium'},
+    ]},
+    {name:'Structural Patterns',topics:[
+      {id:'p4t10',name:'Strategy Pattern',desc:'Interchangeable algorithms at runtime — payment, sorting strategies',priority:'critical',diff:'medium'},
+      {id:'p4t11',name:'Observer Pattern',desc:'One-to-many dependency, Spring ApplicationEvent connection',priority:'high',diff:'medium'},
+      {id:'p4t12',name:'Decorator Pattern',desc:'Wrap behavior dynamically, Java I/O streams',priority:'high',diff:'medium'},
+      {id:'p4t13',name:'Proxy Pattern',desc:'Virtual, protection, logging — Spring AOP uses proxy',priority:'high',diff:'hard'},
+      {id:'p4t14',name:'Adapter Pattern',desc:'Convert interface, legacy code integration',priority:'high',diff:'medium'},
+      {id:'p4t15',name:'Facade Pattern',desc:'Simplified interface to complex subsystem',priority:'medium',diff:'easy'},
+    ]},
+    {name:'Behavioral Patterns',topics:[
+      {id:'p4t16',name:'Command Pattern',desc:'Encapsulate request, undo/redo support',priority:'medium',diff:'medium'},
+      {id:'p4t17',name:'Template Method Pattern',desc:'Skeleton in base class, subclasses fill steps',priority:'high',diff:'medium'},
+      {id:'p4t18',name:'Chain of Responsibility',desc:'Servlet filters, middleware pipeline',priority:'medium',diff:'medium'},
+      {id:'p4t19',name:'State Pattern',desc:'Behavior changes with internal state — vending machine, ATM',priority:'medium',diff:'medium'},
+    ]},
+    ]
+  },
+  {id:'w18',name:'Week 18',title:'LLD Problems — Part 1',
+    groups:[
+    {name:'Must-Solve LLD (Code in Java)',topics:[
+      {id:'p4t20',name:'LRU Cache — HashMap + Doubly Linked List',desc:'Most common LLD — O(1) get/put, LFU as follow-up',priority:'critical',diff:'hard'},
+      {id:'p4t21',name:'Parking Lot System',desc:'Multi-level, vehicle types, ticket, pricing strategy',priority:'critical',diff:'hard'},
+      {id:'p4t22',name:'BookMyShow — Seat Booking',desc:'Seat reservation with concurrency handling',priority:'critical',diff:'hard'},
+      {id:'p4t23',name:'Elevator System',desc:'Multiple elevators, scheduling algorithm, state machine',priority:'high',diff:'hard'},
+      {id:'p4t24',name:'ATM Machine',desc:'State machine: Idle→InsertCard→Auth→Transaction',priority:'high',diff:'hard'},
+    ]},
+    ]
+  },
+  {id:'w19',name:'Week 19',title:'LLD Problems — Part 2',
+    groups:[
+    {name:'Additional LLD Problems',topics:[
+      {id:'p4t25',name:'Food Delivery System (Zomato)',desc:'Restaurant, order, delivery partner assignment',priority:'high',diff:'hard'},
+      {id:'p4t26',name:'Splitwise / Bill Splitter',desc:'Expense splitting, minimize settle-up transactions',priority:'high',diff:'hard'},
+      {id:'p4t27',name:'Logger Framework',desc:'Log levels, appenders, formatters — Strategy + Observer',priority:'high',diff:'medium'},
+      {id:'p4t28',name:'Notification System',desc:'Multiple channels, templates, retry logic, priority queue',priority:'medium',diff:'hard'},
+      {id:'p4t29',name:'Library Management System',desc:'Book catalog, member, borrowing, fine calculation',priority:'medium',diff:'medium'},
+      {id:'p4t30',name:'Thread-Safety in LLD Problems',desc:'Add synchronized/locks to Parking Lot, BookMyShow — practice concurrency in OOPs context',priority:'critical',diff:'hard'},
+    ]},
+    ]
+  },
+  ]
+},
+{
+  id:'p5',label:'Phase 5',title:'System Design',color:'#dc2626',light:'#fef2f2',
+  weeks:[
+  {id:'w20',name:'Week 20',title:'Distributed Systems Fundamentals',
+    groups:[
+    {name:'Core Concepts',topics:[
+      {id:'p5t1',name:'Horizontal vs Vertical Scaling & Statelessness',desc:'Session management in horizontal scaling, sticky sessions vs external store',priority:'critical',diff:'medium'},
+      {id:'p5t2',name:'Load Balancing — L4 vs L7',desc:'Algorithms: round robin, least connections, IP hash, weighted',priority:'critical',diff:'medium'},
+      {id:'p5t3',name:'Caching Strategies',desc:'Cache-aside, read/write-through, eviction (LRU/LFU), stampede, invalidation',priority:'critical',diff:'hard'},
+      {id:'p5t4',name:'Database Sharding Strategies',desc:'Range, hash, directory-based, hotspot problem, cross-shard queries',priority:'critical',diff:'hard'},
+      {id:'p5t5',name:'CAP Theorem & PACELC',desc:'CP vs AP systems with real DB examples, PACELC adds latency dimension',priority:'critical',diff:'hard'},
+      {id:'p5t6',name:'Consistent Hashing & Virtual Nodes',desc:'Minimal redistribution when nodes added/removed, Cassandra/Dynamo use',priority:'critical',diff:'hard'},
+      {id:'p5t7',name:'Rate Limiting — All 4 Algorithms',desc:'Token bucket, leaky bucket, fixed window, sliding window — trade-offs',priority:'critical',diff:'medium'},
+      {id:'p5t8',name:'Kafka vs RabbitMQ — When to Use Each',desc:'Kafka internals: log, partition, consumer group, offset, replay',priority:'critical',diff:'hard'},
+      {id:'p5t9',name:'CDN & Edge Caching',desc:'Edge servers, origin pull, TTL, cache invalidation strategies',priority:'high',diff:'medium'},
+      {id:'p5t10',name:'API Gateway Responsibilities',desc:'Routing, rate limiting, auth, SSL termination, service discovery',priority:'high',diff:'medium'},
+      {id:'p5t11',name:'Bloom Filter',desc:'Probabilistic DS, false positives, space efficiency, Cassandra use',priority:'medium',diff:'medium'},
+      {id:'p5t12',name:'Distributed Locking — Redis Redlock',desc:'Lock expiry, fencing tokens, Redisson implementation',priority:'high',diff:'hard'},
+    ]},
+    ]
+  },
+  {id:'w21',name:'Week 21',title:'Storage & Advanced Concepts',
+    groups:[
+    {name:'Storage & Search',topics:[
+      {id:'p5t13',name:'SQL vs NoSQL Decision Framework',desc:'When ACID matters, horizontal scale, data model fit',priority:'critical',diff:'medium'},
+      {id:'p5t14',name:'Elasticsearch & Inverted Index',desc:'Analyzer pipeline, relevance scoring BM25, when to use',priority:'high',diff:'hard'},
+      {id:'p5t15',name:'Blob Storage & Pre-signed URLs',desc:'S3 object storage, direct client upload bypassing server',priority:'high',diff:'medium'},
+      {id:'p5t16',name:'Event Sourcing',desc:'Append-only event log, state reconstruction, difference from pub-sub',priority:'high',diff:'hard'},
+      {id:'p5t17',name:'WebSockets vs Long Polling vs SSE',desc:'When to use each, connection overhead, real-time requirements',priority:'high',diff:'medium'},
+      {id:'p5t18',name:'Geospatial Indexing — Quadtree & Geohash',desc:'Used in Uber, proximity search, encoding coordinates as strings',priority:'high',diff:'hard'},
+    ]},
+    ]
+  },
+  {id:'w22',name:'Week 22',title:'System Design Problems — Part 1',
+    groups:[
+    {name:'Design Problems (RESHADED Framework)',topics:[
+      {id:'p5t19',name:'RESHADED Framework Mastery',desc:'Requirements→Estimation→Storage→HLD→API→Data→Evaluate→Deep Dive',priority:'critical',diff:'medium'},
+      {id:'p5t20',name:'Design URL Shortener',desc:'Hashing, redirect, base62, analytics, database choice',priority:'critical',diff:'medium'},
+      {id:'p5t21',name:'Design Rate Limiter',desc:'Algorithm choice, distributed state, Redis sliding window',priority:'critical',diff:'medium'},
+      {id:'p5t22',name:'Design WhatsApp / Chat System',desc:'WebSockets, message ordering, delivery receipts, group at scale',priority:'critical',diff:'hard'},
+      {id:'p5t23',name:'Design Instagram / Twitter Feed',desc:'Fan-out push vs pull vs hybrid, celebrity problem, timeline generation',priority:'critical',diff:'hard'},
+      {id:'p5t24',name:'Design Netflix / Video Streaming',desc:'CDN, adaptive bitrate, content distribution, metadata service',priority:'high',diff:'hard'},
+    ]},
+    ]
+  },
+  {id:'w23',name:'Week 23',title:'System Design Problems — Part 2',
+    groups:[
+    {name:'More Design Problems',topics:[
+      {id:'p5t25',name:'Design Uber / Ride Sharing',desc:'Geohash driver matching, surge pricing, real-time location tracking',priority:'high',diff:'hard'},
+      {id:'p5t26',name:'Design Search Autocomplete',desc:'Trie + ranking + caching top queries + personalization',priority:'high',diff:'hard'},
+      {id:'p5t27',name:'Design Distributed Job Scheduler',desc:'At-least-once delivery, idempotency, cron, distributed locking',priority:'high',diff:'hard'},
+      {id:'p5t28',name:'Design Web Crawler',desc:'BFS frontier, politeness, deduplication, URL normalization',priority:'medium',diff:'hard'},
+      {id:'p5t29',name:'Design Distributed Cache (Redis-like)',desc:'Consistent hashing, replication, eviction, slot assignment',priority:'high',diff:'hard'},
+      {id:'p5t30',name:'Design Notification System',desc:'Fan-out, multiple channels, priority queues, rate limiting per user',priority:'high',diff:'hard'},
+    ]},
+    ]
+  },
+  ]
+},
+{
+  id:'p6',label:'Phase 6',title:'Interview Prep & Soft Skills',color:'#b45309',light:'#fffbeb',
+  weeks:[
+  {id:'w24',name:'Week 24',title:'Mock Interviews & Behavioral',
+    groups:[
+    {name:'Behavioral Preparation',topics:[
+      {id:'p6t1',name:'STAR Method — 10 Stories Prepared',desc:'Failure, leadership, conflict, ambiguity, ownership, impact stories',priority:'critical',diff:'medium'},
+      {id:'p6t2',name:'"Tell Me About Yourself" (2-minute version)',desc:'Career narrative, technical identity, what you\'re building toward',priority:'critical',diff:'easy'},
+      {id:'p6t3',name:'Production Incident Story',desc:'Root cause, impact, fix, what changed — demonstrates ownership',priority:'high',diff:'medium'},
+      {id:'p6t4',name:'Technical Trade-off Story',desc:'Why you chose tech X over Y — shows system thinking',priority:'high',diff:'medium'},
+      {id:'p6t5',name:'Disagreement with Manager Story',desc:'Frame constructively — disagree and commit approach',priority:'high',diff:'medium'},
+      {id:'p6t6',name:'10 Full Mock Interview Sessions (Recorded)',desc:'DSA, LLD, System Design — review recordings for filler words',priority:'critical',diff:'hard'},
+    ]},
+    ]
+  },
+  {id:'w25',name:'Week 25',title:'Profile & Negotiation',
+    groups:[
+    {name:'Profile & Negotiation',topics:[
+      {id:'p6t7',name:'Resume — Every Bullet Has a Number',desc:'Latency %, RPS, cost reduction, team size — no vague bullets',priority:'critical',diff:'medium'},
+      {id:'p6t8',name:'GitHub — 2 Production-Grade Projects',desc:'Spring Boot API + DB + tests + Docker + README + clean commits',priority:'high',diff:'medium'},
+      {id:'p6t9',name:'LeetCode — 150+ Problems Solved',desc:'60% medium, 20% easy, 20% hard, company-specific lists',priority:'critical',diff:'hard'},
+      {id:'p6t10',name:'Salary Research — Levels.fyi, Glassdoor',desc:'Know market rate before any call, target companies benchmarked',priority:'critical',diff:'easy'},
+      {id:'p6t11',name:'Negotiation Strategy — Never Give First Number',desc:'"What\'s the budget range?" — BATNA, competing offers, total comp',priority:'critical',diff:'medium'},
+      {id:'p6t12',name:'LinkedIn Profile Optimized',desc:'Headline, about, experience with impact metrics, recommendations',priority:'high',diff:'easy'},
+    ]},
+    ]
+  },
+  ]
+},
 ];
 
-// ─── STATE ──────────────────────────────────────────────────────────────────
-let state = {}; // { topicId: { status, note, completedAt } }
-let expandedPhases = {};
-let allExpanded = false;
-let currentNoteId = null;
+// ═══════════════════════════════════════════════════════════
+// STATE
+// ═══════════════════════════════════════════════════════════
+let state = {};
+let currentWeekId = null;
 
-const STATUS_CYCLE = ['not-started', 'in-progress', 'completed', 'needs-review'];
-const STATUS_LABELS = {
-  'not-started': '— Not Started',
-  'in-progress': '⟳ In Progress',
-  'completed': '✓ Completed',
-  'needs-review': '↺ Needs Review'
-};
-const STATUS_CLASSES = {
-  'not-started': 'status-not-started',
-  'in-progress': 'status-in-progress',
-  'completed': 'status-completed',
-  'needs-review': 'status-needs-review'
-};
-const PRIORITY_LABELS = { critical: 'CRITICAL', high: 'HIGH', medium: 'MED', low: 'LOW' };
-const PRIORITY_CLASSES = { critical: 'priority-critical', high: 'priority-high', medium: 'priority-medium', low: 'priority-low' };
+const STATUS_ORDER = ['not-started','in-progress','completed','needs-review'];
+const STATUS_LABELS = {'not-started':'Not Started','in-progress':'In Progress','completed':'Completed','needs-review':'Needs Review'};
+const PCLASS = {critical:'p-critical',high:'p-high',medium:'p-medium',low:'p-low'};
+const DCLASS = {easy:'d-easy','medium-diff':'d-medium',hard:'d-hard'};
 
-// ─── STORAGE ─────────────────────────────────────────────────────────────────
-function loadState() {
-  try {
-    const saved = localStorage.getItem('javaTrackerState_v2');
-    if (saved) state = JSON.parse(saved);
-    const savedExpanded = localStorage.getItem('javaTrackerExpanded');
-    if (savedExpanded) expandedPhases = JSON.parse(savedExpanded);
-    const firstVisit = localStorage.getItem('javaTrackerFirstVisit');
-    if (!firstVisit) {
-      localStorage.setItem('javaTrackerFirstVisit', new Date().toISOString());
-    }
-  } catch(e) { state = {}; }
+function loadState(){
+  try{const s=localStorage.getItem('jbt_v3');if(s)state=JSON.parse(s);}catch(e){state={};}
+  const f=localStorage.getItem('jbt_first');
+  if(!f)localStorage.setItem('jbt_first',new Date().toISOString());
 }
-function saveState() {
-  localStorage.setItem('javaTrackerState_v2', JSON.stringify(state));
-  localStorage.setItem('javaTrackerExpanded', JSON.stringify(expandedPhases));
+function saveState(){localStorage.setItem('jbt_v3',JSON.stringify(state));}
+function getTS(id){return state[id]||{status:'not-started',note:'',completedAt:null};}
+
+// ═══════════════════════════════════════════════════════════
+// ALL TOPICS FLAT
+// ═══════════════════════════════════════════════════════════
+function allTopics(){
+  const arr=[];
+  PHASES.forEach(p=>p.weeks.forEach(w=>w.groups.forEach(g=>g.topics.forEach(t=>arr.push({...t,weekId:w.id,phaseId:p.id})))));
+  return arr;
 }
-function getTopicState(id) {
-  return state[id] || { status: 'not-started', note: '', completedAt: null };
+function weekTopics(weekId){
+  const arr=[];
+  PHASES.forEach(p=>p.weeks.filter(w=>w.id===weekId).forEach(w=>w.groups.forEach(g=>g.topics.forEach(t=>arr.push({...t,weekId:w.id,phaseId:p.id})))));
+  return arr;
 }
 
-// ─── STATS ──────────────────────────────────────────────────────────────────
-function getAllTopics() {
-  const all = [];
-  PHASES.forEach(p => p.groups.forEach(g => g.topics.forEach(t => all.push({ ...t, phaseId: p.id }))));
-  return all;
+// ═══════════════════════════════════════════════════════════
+// STATS
+// ═══════════════════════════════════════════════════════════
+function computeGlobal(){
+  const all=allTopics();
+  let done=0,wip=0,review=0;
+  all.forEach(t=>{const s=getTS(t.id).status;if(s==='completed')done++;else if(s==='in-progress')wip++;else if(s==='needs-review')review++;});
+  return{total:all.length,done,wip,review,pending:all.length-done-wip-review};
 }
-function computeStats() {
-  const all = getAllTopics();
-  const total = all.length;
-  let completed = 0, inProgress = 0, needsReview = 0;
-  all.forEach(t => {
-    const s = getTopicState(t.id).status;
-    if (s === 'completed') completed++;
-    else if (s === 'in-progress') inProgress++;
-    else if (s === 'needs-review') needsReview++;
-  });
-  const pending = total - completed - inProgress - needsReview;
-  return { total, completed, inProgress, needsReview, pending };
+function phaseProgress(phase){
+  let total=0,done=0,wip=0;
+  phase.weeks.forEach(w=>w.groups.forEach(g=>g.topics.forEach(t=>{
+    total++;const s=getTS(t.id).status;
+    if(s==='completed')done++;else if(s==='in-progress')wip++;
+  })));
+  return{total,done,wip,pct:total>0?Math.round((done+wip*0.5)/total*100):0};
 }
-function computePhaseStats(phase) {
-  const topics = [];
-  phase.groups.forEach(g => g.topics.forEach(t => topics.push(t)));
-  let completed = 0, inProgress = 0;
-  topics.forEach(t => {
-    const s = getTopicState(t.id).status;
-    if (s === 'completed') completed++;
-    else if (s === 'in-progress') inProgress++;
-  });
-  return { total: topics.length, completed, inProgress };
+function weekProgress(weekId){
+  const tops=weekTopics(weekId);
+  let done=0,wip=0;
+  tops.forEach(t=>{const s=getTS(t.id).status;if(s==='completed')done++;else if(s==='in-progress')wip++;});
+  return{total:tops.length,done,wip,pct:tops.length>0?Math.round((done+wip*0.5)/tops.length*100):0};
 }
-function computeReadiness() {
-  let score = 0;
-  PHASES.forEach(phase => {
-    const { total, completed, inProgress } = computePhaseStats(phase);
-    const phaseScore = (completed + inProgress * 0.5) / total;
-    score += phaseScore * phase.weight;
+const PHASE_WEIGHTS={p1:25,p2:20,p3:20,p4:15,p5:15,p6:5};
+function computeReadiness(){
+  let score=0;
+  PHASES.forEach(p=>{
+    const{total,done,wip}=phaseProgress(p);
+    const pp=(done+wip*0.5)/total;
+    score+=pp*(PHASE_WEIGHTS[p.id]||10);
   });
   return Math.round(score);
 }
-function getDaysActive() {
-  const first = localStorage.getItem('javaTrackerFirstVisit');
-  if (!first) return 0;
-  return Math.max(1, Math.floor((Date.now() - new Date(first).getTime()) / 86400000));
-}
-function getTier(score) {
-  if (score >= 80) return { label: 'EXPERT READY', cls: 'tier-expert' };
-  if (score >= 60) return { label: 'INTERVIEW READY', cls: 'tier-ready' };
-  if (score >= 35) return { label: 'INTERMEDIATE', cls: 'tier-intermediate' };
-  return { label: 'BEGINNER', cls: 'tier-beginner' };
+function getTier(s){
+  if(s>=80)return{label:'EXPERT',cls:'tier-expert'};
+  if(s>=60)return{label:'READY',cls:'tier-ready'};
+  if(s>=35)return{label:'INTERMEDIATE',cls:'tier-intermediate'};
+  return{label:'BEGINNER',cls:'tier-beginner'};
 }
 
-// ─── UPDATE UI ───────────────────────────────────────────────────────────────
-function updateStats() {
-  const { total, completed, inProgress, needsReview, pending } = computeStats();
-  document.getElementById('statTotal').textContent = total;
-  document.getElementById('statCompleted').textContent = completed;
-  document.getElementById('statInProgress').textContent = inProgress;
-  document.getElementById('statNeedsReview').textContent = needsReview;
-  document.getElementById('statPending').textContent = pending;
-  document.getElementById('statDays').textContent = getDaysActive();
-  const pct = total > 0 ? Math.round(completed / total * 100) : 0;
-  document.getElementById('overallPct').textContent = pct + '%';
-  document.getElementById('overallBar').style.width = pct + '%';
+// ═══════════════════════════════════════════════════════════
+// UPDATE TOPBAR & SIDEBAR FOOTER
+// ═══════════════════════════════════════════════════════════
+function updateTopbar(){
+  const{done,wip,total}=computeGlobal();
+  document.getElementById('ts-done').textContent=done;
+  document.getElementById('ts-wip').textContent=wip;
+  document.getElementById('ts-total').textContent=total;
+  const r=computeReadiness();
+  document.getElementById('readiness-score').textContent=r+'%';
+  const tier=getTier(r);
+  const tb=document.getElementById('tier-badge');
+  tb.textContent=tier.label;
+  tb.className='tier-pill '+tier.cls;
 
-  // Phase mini bars
-  const miniGrid = document.getElementById('phaseMiniGrid');
-  miniGrid.innerHTML = '';
-  PHASES.forEach(phase => {
-    const { total: pt, completed: pc, inProgress: pi } = computePhaseStats(phase);
-    const pp = pt > 0 ? Math.round((pc + pi * 0.5) / pt * 100) : 0;
-    const div = document.createElement('div');
-    div.className = 'phase-mini';
-    div.innerHTML = `<div class="phase-mini-label"><span>${phase.label}: ${phase.title}</span><span>${pp}%</span></div><div class="phase-mini-bar"><div class="phase-mini-bar-fill" style="width:${pp}%"></div></div>`;
-    miniGrid.appendChild(div);
+  const pct=total>0?Math.round(done/total*100):0;
+  document.getElementById('overall-pct').textContent=pct+'%';
+  document.getElementById('overall-bar').style.width=pct+'%';
+
+  // Phase bars
+  const pb=document.getElementById('phase-bars');
+  pb.innerHTML='';
+  PHASES.forEach(p=>{
+    const{done:pd,total:pt,pct:pp}=phaseProgress(p);
+    const div=document.createElement('div');div.className='phase-bar-row';
+    div.innerHTML=`<span>${p.label.replace('Phase ','P')}</span><div class="phase-bar-track"><div class="phase-bar-fill" style="width:${pp}%;background:${p.color}"></div></div><span class="phase-bar-pct">${pp}%</span>`;
+    pb.appendChild(div);
   });
 
-  // Assessment
-  const readiness = computeReadiness();
-  document.getElementById('readinessScore').textContent = readiness + '%';
-  const tier = getTier(readiness);
-  const tierEl = document.getElementById('tierBadge');
-  tierEl.textContent = tier.label;
-  tierEl.className = 'assessment-tier ' + tier.cls;
+  // Update sidebar week badges
+  PHASES.forEach(p=>p.weeks.forEach(w=>{
+    const el=document.getElementById('wbadge-'+w.id);
+    if(!el)return;
+    const wp=weekProgress(w.id);
+    el.textContent=wp.done+'/'+wp.total;
+    const wi=document.getElementById('witem-'+w.id);
+    if(wi){wi.classList.toggle('done-week',wp.done===wp.total&&wp.total>0);}
+  }));
+}
 
-  // Pillar breakdown
-  const breakdown = document.getElementById('pillarBreakdown');
-  breakdown.innerHTML = '';
-  PHASES.forEach(phase => {
-    const { total: pt, completed: pc } = computePhaseStats(phase);
-    const pp = pt > 0 ? Math.round(pc / pt * 100) : 0;
-    const el = document.createElement('div');
-    el.className = 'pillar-score';
-    el.innerHTML = `<span>${pp}%</span>${phase.label}`;
-    breakdown.appendChild(el);
+// ═══════════════════════════════════════════════════════════
+// SIDEBAR RENDER
+// ═══════════════════════════════════════════════════════════
+function buildSidebar(){
+  const nav=document.getElementById('sidebar-nav');
+  nav.innerHTML='';
+  PHASES.forEach((phase,pi)=>{
+    const pg=document.createElement('div');pg.className='phase-group';pg.id='pg-'+phase.id;
+    const{pct}=phaseProgress(phase);
+    const size=28,r=11,circ=2*Math.PI*r;
+    const stroke=circ*(1-pct/100);
+    const ph=document.createElement('div');
+    ph.className='phase-group-header';ph.id='pgh-'+phase.id;
+    ph.innerHTML=`
+      <div class="phase-dot" style="background:${phase.light};color:${phase.color}">${pi+1}</div>
+      <div class="phase-label">${phase.title}<small>${phase.label}</small></div>
+      <svg class="ring-svg" width="${size}" height="${size}" viewBox="0 0 ${size} ${size}">
+        <circle cx="${size/2}" cy="${size/2}" r="${r}" fill="none" stroke="#e8e6e0" stroke-width="2.5"/>
+        <circle cx="${size/2}" cy="${size/2}" r="${r}" fill="none" stroke="${phase.color}" stroke-width="2.5"
+          stroke-dasharray="${circ}" stroke-dashoffset="${stroke}"
+          stroke-linecap="round" transform="rotate(-90 ${size/2} ${size/2})"/>
+        <text x="${size/2}" y="${size/2+3.5}" text-anchor="middle" fill="${phase.color}" font-size="7" font-family="JetBrains Mono" font-weight="600">${pct}%</text>
+      </svg>
+      <span class="phase-chevron open" id="pchev-${phase.id}">▶</span>`;
+    ph.addEventListener('click',()=>togglePhaseGroup(phase.id));
+    const pw=document.createElement('div');pw.className='phase-weeks open';pw.id='pw-'+phase.id;
+    phase.weeks.forEach(week=>{
+      const wp=weekProgress(week.id);
+      const wi=document.createElement('div');
+      wi.className='week-item'+(week.id===currentWeekId?' active':'')+(wp.done===wp.total&&wp.total>0?' done-week':'');
+      wi.id='witem-'+week.id;
+      wi.innerHTML=`<div class="week-item-name">${week.name}: ${week.title}</div><span class="week-badge" id="wbadge-${week.id}">${wp.done}/${wp.total}</span>`;
+      wi.addEventListener('click',()=>selectWeek(week.id,phase.id));
+      pw.appendChild(wi);
+    });
+    pg.appendChild(ph);pg.appendChild(pw);nav.appendChild(pg);
   });
 }
 
-// ─── RENDER ──────────────────────────────────────────────────────────────────
-function renderAll() {
-  const container = document.getElementById('mainContent');
-  container.innerHTML = '';
-  PHASES.forEach(phase => {
-    const section = buildPhaseSection(phase);
-    container.appendChild(section);
-  });
-  updateStats();
+function togglePhaseGroup(id){
+  const pw=document.getElementById('pw-'+id);
+  const ch=document.getElementById('pchev-'+id);
+  const isOpen=pw.classList.contains('open');
+  pw.classList.toggle('open',!isOpen);
+  ch.classList.toggle('open',!isOpen);
 }
 
-function buildPhaseSection(phase) {
-  const { total, completed, inProgress } = computePhaseStats(phase);
-  const isOpen = expandedPhases[phase.id] !== false; // default open
+function filterSidebar(){
+  const q=document.getElementById('sidebar-search').value.toLowerCase();
+  PHASES.forEach(p=>p.weeks.forEach(w=>{
+    const el=document.getElementById('witem-'+w.id);
+    if(!el)return;
+    const match=!q||w.name.toLowerCase().includes(q)||w.title.toLowerCase().includes(q)||p.title.toLowerCase().includes(q);
+    el.style.display=match?'':'none';
+  }));
+}
 
-  const section = document.createElement('div');
-  section.className = 'phase-section';
-  section.id = 'section-' + phase.id;
+// ═══════════════════════════════════════════════════════════
+// WEEK SELECTION & CHECKLIST
+// ═══════════════════════════════════════════════════════════
+function selectWeek(weekId,phaseId){
+  // Clear active
+  document.querySelectorAll('.week-item').forEach(el=>el.classList.remove('active'));
+  const wi=document.getElementById('witem-'+weekId);if(wi)wi.classList.add('active');
+  currentWeekId=weekId;
+  // Find week & phase
+  let week=null,phase=null;
+  PHASES.forEach(p=>p.weeks.forEach(w=>{if(w.id===weekId){week=w;phase=p;}}));
+  if(!week)return;
+  // Update header
+  document.getElementById('content-breadcrumb').textContent=phase.label+' · '+phase.title;
+  document.getElementById('content-title').textContent=week.name+': '+week.title;
+  const wp=weekProgress(weekId);
+  document.getElementById('content-subtitle').textContent=wp.total+' topics · '+wp.done+' completed · '+wp.wip+' in progress';
+  // Meta chips
+  const meta=document.getElementById('content-meta');
+  meta.innerHTML='';
+  const striverCount=weekTopics(weekId).filter(t=>t.striver).length;
+  if(striverCount>0){const c=document.createElement('div');c.className='meta-chip';c.innerHTML='🔥 '+striverCount+' Striver Sheet problems';meta.appendChild(c);}
+  const critCount=weekTopics(weekId).filter(t=>t.priority==='critical').length;
+  if(critCount>0){const c=document.createElement('div');c.className='meta-chip';c.innerHTML='🎯 '+critCount+' critical topics';meta.appendChild(c);}
+  const hardCount=weekTopics(weekId).filter(t=>t.diff==='hard').length;
+  if(hardCount>0){const c=document.createElement('div');c.className='meta-chip';c.innerHTML='💪 '+hardCount+' hard problems';meta.appendChild(c);}
+  // Progress
+  const wpEl=document.getElementById('content-week-progress');wpEl.style.display='flex';
+  renderChecklist(weekId);
+  updateWeekProgressBar();
+}
 
-  const header = document.createElement('div');
-  header.className = 'phase-header' + (isOpen ? ' open' : '');
-  header.innerHTML = `
-    <span class="phase-badge">${phase.label}</span>
-    <div>
-      <div class="phase-title">${phase.title}</div>
-      <div class="phase-subtitle">${phase.subtitle}</div>
-    </div>
-    <span class="phase-progress-text">${completed}/${total} done${inProgress > 0 ? ' · ' + inProgress + ' WIP' : ''}</span>
-    <span class="phase-chevron ${isOpen ? 'open' : ''}">▼</span>
-  `;
-  header.addEventListener('click', () => togglePhase(phase.id));
-
-  const body = document.createElement('div');
-  body.id = 'body-' + phase.id;
-  body.style.display = isOpen ? 'block' : 'none';
-
-  const table = document.createElement('table');
-  table.className = 'topic-table';
-  table.innerHTML = `<thead><tr>
-    <th></th>
-    <th>Topic</th>
-    <th class="col-status">Status</th>
-    <th class="col-priority">Priority</th>
-    <th>Notes</th>
-    <th class="col-date">Last Updated</th>
-  </tr></thead>`;
-  const tbody = document.createElement('tbody');
-  tbody.id = 'tbody-' + phase.id;
-
-  phase.groups.forEach(group => {
-    const sgRow = document.createElement('tr');
-    sgRow.className = 'subgroup-row';
-    sgRow.innerHTML = `<td colspan="6">${group.name}</td>`;
-    tbody.appendChild(sgRow);
-
-    group.topics.forEach(topic => {
-      tbody.appendChild(buildTopicRow(topic));
+function renderChecklist(weekId){
+  const area=document.getElementById('checklist-area');
+  area.innerHTML='';
+  let week=null;PHASES.forEach(p=>p.weeks.forEach(w=>{if(w.id===weekId)week=w;}));
+  if(!week)return;
+  week.groups.forEach(group=>{
+    const sh=document.createElement('div');sh.className='subgroup-header';
+    const doneInGroup=group.topics.filter(t=>getTS(t.id).status==='completed').length;
+    sh.innerHTML=group.name+'<span class="subgroup-count">'+doneInGroup+'/'+group.topics.length+'</span>';
+    area.appendChild(sh);
+    group.topics.forEach(topic=>{
+      area.appendChild(buildTopicCard(topic));
     });
   });
-
-  table.appendChild(tbody);
-  body.appendChild(table);
-  section.appendChild(header);
-  section.appendChild(body);
-  return section;
+  applyFilters();
 }
 
-function buildTopicRow(topic) {
-  const ts = getTopicState(topic.id);
-  const row = document.createElement('tr');
-  row.className = 'topic-row';
-  row.id = 'row-' + topic.id;
-  if (ts.status === 'completed') row.classList.add('completed');
-  if (ts.status === 'in-progress') row.classList.add('in-progress');
+function buildTopicCard(topic){
+  const ts=getTS(topic.id);
+  const card=document.createElement('div');
+  card.className='topic-card'+' '+(ts.status==='completed'?'completed':ts.status==='in-progress'?'in-progress':ts.status==='needs-review'?'needs-review':'');
+  card.id='card-'+topic.id;
 
-  // Checkbox (quick complete)
-  const checkTd = document.createElement('td');
-  const cb = document.createElement('input');
-  cb.type = 'checkbox';
-  cb.className = 'topic-checkbox';
-  cb.checked = ts.status === 'completed';
-  cb.addEventListener('change', () => quickComplete(topic.id, cb.checked));
-  checkTd.appendChild(cb);
+  const inner=document.createElement('div');inner.className='topic-card-inner';
 
-  // Name
-  const nameTd = document.createElement('td');
-  nameTd.innerHTML = `<div class="topic-name">${topic.name}</div><div class="topic-desc">${topic.desc}</div>`;
+  // Checkbox
+  const chk=document.createElement('div');
+  chk.className='topic-check'+(ts.status==='completed'?' checked':ts.status==='in-progress'?' in-progress-check':ts.status==='needs-review'?' needs-review-check':'');
+  chk.id='chk-'+topic.id;
+  chk.addEventListener('click',()=>quickComplete(topic.id));
 
-  // Status cycle button
-  const statusTd = document.createElement('td');
-  const statusBtn = document.createElement('button');
-  statusBtn.className = `status-badge ${STATUS_CLASSES[ts.status]}`;
-  statusBtn.id = 'status-' + topic.id;
-  statusBtn.textContent = STATUS_LABELS[ts.status];
-  statusBtn.addEventListener('click', () => cycleStatus(topic.id));
-  statusTd.appendChild(statusBtn);
+  // Body
+  const body=document.createElement('div');body.className='topic-body';
+  const rowTop=document.createElement('div');rowTop.className='topic-row-top';
+  const nameEl=document.createElement('span');nameEl.className='topic-name';nameEl.textContent=topic.name;
+  rowTop.appendChild(nameEl);
+  if(topic.priority){const b=document.createElement('span');b.className='priority-badge '+(PCLASS[topic.priority]||'');b.textContent=topic.priority.toUpperCase();rowTop.appendChild(b);}
+  if(topic.diff){const b=document.createElement('span');b.className='difficulty-badge '+(DCLASS[topic.diff]||'');b.textContent=topic.diff==='medium-diff'?'Med':topic.diff.charAt(0).toUpperCase()+topic.diff.slice(1);rowTop.appendChild(b);}
+  if(topic.striver){const b=document.createElement('span');b.className='striver-badge';b.textContent='Striver';rowTop.appendChild(b);}
+  body.appendChild(rowTop);
+  const descEl=document.createElement('div');descEl.className='topic-desc';descEl.textContent=topic.desc;body.appendChild(descEl);
+  if(ts.completedAt){const d=document.createElement('div');d.className='topic-date';d.id='date-'+topic.id;d.textContent='✓ '+new Date(ts.completedAt).toLocaleDateString('en-IN',{day:'2-digit',month:'short',year:'2-digit'});body.appendChild(d);}
+  else{const d=document.createElement('div');d.className='topic-date';d.id='date-'+topic.id;body.appendChild(d);}
 
-  // Priority
-  const prioTd = document.createElement('td');
-  prioTd.innerHTML = `<span class="priority-badge ${PRIORITY_CLASSES[topic.priority]}">${PRIORITY_LABELS[topic.priority]}</span>`;
+  // Actions
+  const actions=document.createElement('div');actions.className='topic-actions';
+  const statusBtn=document.createElement('button');
+  statusBtn.className='status-cycle '+(ts.status==='completed'?'s-completed':ts.status==='in-progress'?'s-in-progress':ts.status==='needs-review'?'s-needs-review':'');
+  statusBtn.id='sbtn-'+topic.id;
+  statusBtn.textContent=STATUS_LABELS[ts.status]||'Not Started';
+  statusBtn.addEventListener('click',()=>cycleStatus(topic.id));
+  const noteBtn=document.createElement('button');
+  noteBtn.className='note-btn'+(ts.note?' has-note':'');
+  noteBtn.id='nbtn-'+topic.id;
+  noteBtn.textContent=ts.note?'📝':'＋';
+  noteBtn.title=ts.note?'View note':'Add note';
+  noteBtn.addEventListener('click',()=>openNotes(topic.id,topic.name));
+  actions.appendChild(statusBtn);actions.appendChild(noteBtn);
 
-  // Notes
-  const notesTd = document.createElement('td');
-  const notesBtn = document.createElement('button');
-  notesBtn.className = 'notes-btn' + (ts.note ? ' has-note' : '');
-  notesBtn.id = 'notebtn-' + topic.id;
-  notesBtn.textContent = ts.note ? '📝 View' : '+ Note';
-  notesBtn.addEventListener('click', () => openNotes(topic.id, topic.name));
-  notesTd.appendChild(notesBtn);
+  inner.appendChild(chk);inner.appendChild(body);inner.appendChild(actions);
+  card.appendChild(inner);
 
-  // Date
-  const dateTd = document.createElement('td');
-  dateTd.className = 'date-cell';
-  dateTd.id = 'date-' + topic.id;
-  dateTd.textContent = ts.completedAt ? new Date(ts.completedAt).toLocaleDateString('en-IN', { day:'2-digit', month:'short', year:'2-digit' }) : '—';
-
-  row.appendChild(checkTd);
-  row.appendChild(nameTd);
-  row.appendChild(statusTd);
-  row.appendChild(prioTd);
-  row.appendChild(notesTd);
-  row.appendChild(dateTd);
-  return row;
-}
-
-// ─── ACTIONS ─────────────────────────────────────────────────────────────────
-function quickComplete(id, checked) {
-  const ts = getTopicState(id);
-  ts.status = checked ? 'completed' : 'not-started';
-  if (checked) ts.completedAt = new Date().toISOString();
-  else ts.completedAt = null;
-  state[id] = ts;
-  saveState();
-  refreshRow(id);
-  updateStats();
-}
-
-function cycleStatus(id) {
-  const ts = getTopicState(id);
-  const idx = STATUS_CYCLE.indexOf(ts.status);
-  ts.status = STATUS_CYCLE[(idx + 1) % STATUS_CYCLE.length];
-  ts.completedAt = ts.status === 'completed' ? new Date().toISOString() : (ts.status === 'not-started' ? null : ts.completedAt);
-  state[id] = ts;
-  saveState();
-  refreshRow(id);
-  updateStats();
-}
-
-function refreshRow(id) {
-  const ts = getTopicState(id);
-  const row = document.getElementById('row-' + id);
-  if (!row) return;
-  row.className = 'topic-row';
-  if (ts.status === 'completed') row.classList.add('completed');
-  if (ts.status === 'in-progress') row.classList.add('in-progress');
-
-  const cb = row.querySelector('.topic-checkbox');
-  if (cb) cb.checked = ts.status === 'completed';
-
-  const statusBtn = document.getElementById('status-' + id);
-  if (statusBtn) {
-    statusBtn.className = 'status-badge ' + STATUS_CLASSES[ts.status];
-    statusBtn.textContent = STATUS_LABELS[ts.status];
+  // Note preview
+  if(ts.note){
+    const np=document.createElement('div');np.className='note-preview';np.id='npreview-'+topic.id;
+    np.textContent=ts.note.length>100?ts.note.substring(0,100)+'…':ts.note;
+    card.appendChild(np);
+  }else{
+    const np=document.createElement('div');np.className='note-preview';np.id='npreview-'+topic.id;np.style.display='none';
+    card.appendChild(np);
   }
-  const dateEl = document.getElementById('date-' + id);
-  if (dateEl) dateEl.textContent = ts.completedAt ? new Date(ts.completedAt).toLocaleDateString('en-IN', { day:'2-digit', month:'short', year:'2-digit' }) : '—';
+  return card;
+}
 
-  const notesBtn = document.getElementById('notebtn-' + id);
-  if (notesBtn) {
-    notesBtn.className = 'notes-btn' + (ts.note ? ' has-note' : '');
-    notesBtn.textContent = ts.note ? '📝 View' : '+ Note';
+// ═══════════════════════════════════════════════════════════
+// ACTIONS
+// ═══════════════════════════════════════════════════════════
+function quickComplete(id){
+  const ts=getTS(id);
+  ts.status=ts.status==='completed'?'not-started':'completed';
+  ts.completedAt=ts.status==='completed'?new Date().toISOString():null;
+  state[id]=ts;saveState();refreshCard(id);updateTopbar();updateWeekProgressBar();
+}
+function cycleStatus(id){
+  const ts=getTS(id);
+  const idx=STATUS_ORDER.indexOf(ts.status);
+  ts.status=STATUS_ORDER[(idx+1)%STATUS_ORDER.length];
+  ts.completedAt=ts.status==='completed'?new Date().toISOString():(ts.status==='not-started'?null:ts.completedAt);
+  state[id]=ts;saveState();refreshCard(id);updateTopbar();updateWeekProgressBar();
+}
+
+function refreshCard(id){
+  const ts=getTS(id);
+  const card=document.getElementById('card-'+id);if(!card)return;
+  card.className='topic-card'+(ts.status==='completed'?' completed':ts.status==='in-progress'?' in-progress':ts.status==='needs-review'?' needs-review':'');
+  const chk=document.getElementById('chk-'+id);
+  if(chk)chk.className='topic-check'+(ts.status==='completed'?' checked':ts.status==='in-progress'?' in-progress-check':ts.status==='needs-review'?' needs-review-check':'');
+  const sb=document.getElementById('sbtn-'+id);
+  if(sb){sb.textContent=STATUS_LABELS[ts.status];sb.className='status-cycle '+(ts.status==='completed'?'s-completed':ts.status==='in-progress'?'s-in-progress':ts.status==='needs-review'?'s-needs-review':'');}
+  const nb=document.getElementById('nbtn-'+id);
+  if(nb){nb.className='note-btn'+(ts.note?' has-note':'');nb.textContent=ts.note?'📝':'＋';}
+  const dt=document.getElementById('date-'+id);
+  if(dt)dt.textContent=ts.completedAt?'✓ '+new Date(ts.completedAt).toLocaleDateString('en-IN',{day:'2-digit',month:'short',year:'2-digit'}):'';
+  const np=document.getElementById('npreview-'+id);
+  if(np){if(ts.note){np.textContent=ts.note.length>100?ts.note.substring(0,100)+'…':ts.note;np.style.display='';}else{np.style.display='none';}}
+  // Reapply visibility based on current filter
+  applyFilters();
+  // Rebuild sidebar
+  buildSidebar();
+  if(currentWeekId){
+    const wi=document.getElementById('witem-'+currentWeekId);if(wi){wi.classList.add('active');}
   }
+}
 
-  // Refresh phase header
-  PHASES.forEach(phase => {
-    const found = phase.groups.some(g => g.topics.some(t => t.id === id));
-    if (found) {
-      const { total, completed, inProgress } = computePhaseStats(phase);
-      const header = document.querySelector('#section-' + phase.id + ' .phase-progress-text');
-      if (header) header.textContent = `${completed}/${total} done${inProgress > 0 ? ' · ' + inProgress + ' WIP' : ''}`;
-    }
+function updateWeekProgressBar(){
+  if(!currentWeekId)return;
+  const wp=weekProgress(currentWeekId);
+  document.getElementById('week-prog-fill').style.width=wp.pct+'%';
+  document.getElementById('week-prog-pct').textContent=wp.pct+'%';
+  document.getElementById('content-subtitle').textContent=wp.total+' topics · '+wp.done+' completed · '+wp.wip+' in progress';
+}
+
+function markAllComplete(){
+  if(!currentWeekId)return;
+  const tops=weekTopics(currentWeekId);
+  const anyIncomplete=tops.some(t=>getTS(t.id).status!=='completed');
+  tops.forEach(t=>{
+    const ts=getTS(t.id);
+    ts.status=anyIncomplete?'completed':'not-started';
+    ts.completedAt=anyIncomplete?new Date().toISOString():null;
+    state[t.id]=ts;
+  });
+  saveState();
+  renderChecklist(currentWeekId);
+  buildSidebar();
+  updateTopbar();
+  updateWeekProgressBar();
+}
+
+// ═══════════════════════════════════════════════════════════
+// FILTERS
+// ═══════════════════════════════════════════════════════════
+function applyFilters(){
+  if(!currentWeekId)return;
+  const q=document.getElementById('topic-search').value.toLowerCase();
+  const fs=document.getElementById('f-status').value;
+  const fp=document.getElementById('f-priority').value;
+  const fd=document.getElementById('f-difficulty').value;
+  const tops=weekTopics(currentWeekId);
+  tops.forEach(topic=>{
+    const card=document.getElementById('card-'+topic.id);if(!card)return;
+    const ts=getTS(topic.id);
+    const ms=!q||topic.name.toLowerCase().includes(q)||topic.desc.toLowerCase().includes(q);
+    const mst=fs==='all'||ts.status===fs;
+    const mp=fp==='all'||topic.priority===fp;
+    const md=fd==='all'||(fd==='medium-diff'?topic.diff==='medium-diff'||topic.diff==='medium':topic.diff===fd);
+    card.classList.toggle('hidden',!(ms&&mst&&mp&&md));
   });
 }
 
-// ─── PHASE TOGGLE ────────────────────────────────────────────────────────────
-function togglePhase(id) {
-  const body = document.getElementById('body-' + id);
-  const header = document.querySelector('#section-' + id + ' .phase-header');
-  const chevron = document.querySelector('#section-' + id + ' .phase-chevron');
-  const isOpen = body.style.display !== 'none';
-  body.style.display = isOpen ? 'none' : 'block';
-  header.classList.toggle('open', !isOpen);
-  chevron.classList.toggle('open', !isOpen);
-  expandedPhases[id] = !isOpen;
-  saveState();
+// ═══════════════════════════════════════════════════════════
+// NOTES MODAL
+// ═══════════════════════════════════════════════════════════
+let currentNoteId=null;
+function openNotes(id,name){
+  currentNoteId=id;
+  const ts=getTS(id);
+  document.getElementById('modal-title').textContent=name;
+  document.getElementById('modal-subtitle').textContent='Notes, doubts, resources, reminders';
+  document.getElementById('modal-textarea').value=ts.note||'';
+  document.getElementById('notes-modal').classList.add('open');
+  setTimeout(()=>document.getElementById('modal-textarea').focus(),100);
 }
+function closeNotes(){document.getElementById('notes-modal').classList.remove('open');currentNoteId=null;}
+function saveNotes(){
+  if(!currentNoteId)return;
+  const ts=getTS(currentNoteId);
+  ts.note=document.getElementById('modal-textarea').value.trim();
+  state[currentNoteId]=ts;saveState();
+  refreshCard(currentNoteId);closeNotes();
+}
+document.getElementById('notes-modal').addEventListener('click',function(e){if(e.target===this)closeNotes();});
+document.addEventListener('keydown',e=>{if(e.key==='Escape')closeNotes();});
 
-function toggleAllPhases() {
-  allExpanded = !allExpanded;
-  PHASES.forEach(p => {
-    const body = document.getElementById('body-' + p.id);
-    const header = document.querySelector('#section-' + p.id + ' .phase-header');
-    const chevron = document.querySelector('#section-' + p.id + ' .phase-chevron');
-    body.style.display = allExpanded ? 'block' : 'none';
-    header.classList.toggle('open', allExpanded);
-    chevron.classList.toggle('open', allExpanded);
-    expandedPhases[p.id] = allExpanded;
-  });
-  document.querySelector('.btn-expand-all').textContent = allExpanded ? 'Collapse All' : 'Expand All';
-  saveState();
-}
-
-// ─── FILTERS ─────────────────────────────────────────────────────────────────
-function applyFilters() {
-  const search = document.getElementById('searchInput').value.toLowerCase();
-  const filterStatus = document.getElementById('filterStatus').value;
-  const filterPriority = document.getElementById('filterPriority').value;
-
-  PHASES.forEach(phase => {
-    let phaseHasVisible = false;
-    phase.groups.forEach(group => {
-      group.topics.forEach(topic => {
-        const ts = getTopicState(topic.id);
-        const row = document.getElementById('row-' + topic.id);
-        if (!row) return;
-        const matchSearch = !search || topic.name.toLowerCase().includes(search) || topic.desc.toLowerCase().includes(search);
-        const matchStatus = filterStatus === 'all' || ts.status === filterStatus;
-        const matchPriority = filterPriority === 'all' || topic.priority === filterPriority;
-        const visible = matchSearch && matchStatus && matchPriority;
-        row.classList.toggle('hidden', !visible);
-        if (visible) phaseHasVisible = true;
-      });
-    });
-    // Auto-expand phases that have results
-    if ((search || filterStatus !== 'all' || filterPriority !== 'all') && phaseHasVisible) {
-      const body = document.getElementById('body-' + phase.id);
-      const header = document.querySelector('#section-' + phase.id + ' .phase-header');
-      const chevron = document.querySelector('#section-' + phase.id + ' .phase-chevron');
-      if (body) { body.style.display = 'block'; header.classList.add('open'); chevron.classList.add('open'); }
-    }
-  });
-}
-
-// ─── NOTES MODAL ─────────────────────────────────────────────────────────────
-function openNotes(id, name) {
-  currentNoteId = id;
-  const ts = getTopicState(id);
-  document.getElementById('modalTitle').textContent = '📝 Notes — ' + name;
-  document.getElementById('modalSubtitle').textContent = 'Write doubts, resources, reminders, or key takeaways';
-  document.getElementById('modalTextarea').value = ts.note || '';
-  document.getElementById('notesModal').classList.add('open');
-  setTimeout(() => document.getElementById('modalTextarea').focus(), 100);
-}
-function closeNotes() {
-  document.getElementById('notesModal').classList.remove('open');
-  currentNoteId = null;
-}
-function saveNotes() {
-  if (!currentNoteId) return;
-  const ts = getTopicState(currentNoteId);
-  ts.note = document.getElementById('modalTextarea').value.trim();
-  state[currentNoteId] = ts;
-  saveState();
-  const notesBtn = document.getElementById('notebtn-' + currentNoteId);
-  if (notesBtn) {
-    notesBtn.className = 'notes-btn' + (ts.note ? ' has-note' : '');
-    notesBtn.textContent = ts.note ? '📝 View' : '+ Note';
-  }
-  closeNotes();
-}
-document.getElementById('notesModal').addEventListener('click', function(e) {
-  if (e.target === this) closeNotes();
-});
-document.addEventListener('keydown', e => { if (e.key === 'Escape') closeNotes(); });
-
-// ─── EXPORT ──────────────────────────────────────────────────────────────────
-function exportData() {
-  const data = { exportedAt: new Date().toISOString(), state };
-  const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
-  const a = document.createElement('a');
-  a.href = URL.createObjectURL(blob);
-  a.download = 'java-tracker-backup-' + new Date().toLocaleDateString('en-IN').replace(/\//g,'-') + '.json';
+// ═══════════════════════════════════════════════════════════
+// EXPORT & RESET
+// ═══════════════════════════════════════════════════════════
+function exportData(){
+  const blob=new Blob([JSON.stringify({exportedAt:new Date().toISOString(),state},null,2)],{type:'application/json'});
+  const a=document.createElement('a');a.href=URL.createObjectURL(blob);
+  a.download='java-tracker-'+new Date().toLocaleDateString('en-IN').replace(/\//g,'-')+'.json';
   a.click();
 }
-
-function confirmReset() {
-  if (confirm('Reset ALL progress? This cannot be undone.')) {
-    state = {};
-    saveState();
-    renderAll();
+function confirmReset(){
+  if(confirm('Reset ALL progress? This cannot be undone.'))
+  {state={};saveState();currentWeekId=null;buildSidebar();updateTopbar();
+   document.getElementById('checklist-area').innerHTML='<div class="empty-state"><div class="e-icon">📋</div><p>Select a phase & week from the left panel to view topics</p></div>';
+   document.getElementById('content-week-progress').style.display='none';
   }
 }
 
-// ─── INIT ────────────────────────────────────────────────────────────────────
+// ═══════════════════════════════════════════════════════════
+// INIT
+// ═══════════════════════════════════════════════════════════
 loadState();
-renderAll();
+buildSidebar();
+updateTopbar();
 </script>
 </body>
 </html>
