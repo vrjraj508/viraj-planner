@@ -56,8 +56,12 @@ body{background:#0d1117;color:#e6edf3;font-family:-apple-system,BlinkMacSystemFo
 .item:active{background:#1c2129}
 .chk{width:17px;height:17px;border:2px solid #30363d;border-radius:4px;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:10px;cursor:pointer;transition:all .15s}
 .chk.done{background:#238636;border-color:#238636;color:#fff}
-.item-t{flex:1;font-size:12px;color:#8b949e;min-width:0;line-height:1.45}
+.item-t{flex:1;font-size:12px;color:#8b949e;min-width:0;line-height:1.45;cursor:pointer}
+.item-t:hover{color:#c9d1d9}
 .item.done .item-t{color:#30363d;text-decoration:line-through}
+.sc-txt{cursor:pointer}
+.sc-txt:hover{color:#c9d1d9}
+.chk{cursor:pointer}
 .cpy{flex-shrink:0;background:none;border:none;color:#21262d;font-size:14px;cursor:pointer;padding:4px 3px;border-radius:4px;line-height:1;transition:color .15s}
 .cpy:active,.item:hover .cpy{color:#58a6ff}
 .bk{flex-shrink:0;background:none;border:none;color:#21262d;font-size:13px;cursor:pointer;padding:4px 3px;border-radius:4px;line-height:1;transition:color .15s}
@@ -1385,12 +1389,13 @@ const A={
     this.tab_=t;
     document.querySelectorAll('.nav-btn').forEach(b=>b.classList.toggle('active',b.dataset.t===t));
     document.getElementById('si').value='';
+    const app=document.getElementById('app');
+    app.scrollTop=0;
     this.render();
   },
 
   render(){
     const app=document.getElementById('app');
-    app.scrollTop=0;
     if(this.tab_==='path') app.innerHTML=this.renderPath();
     else if(this.tab_==='dsa') app.innerHTML=this.renderDsa();
     else if(this.tab_==='sc') app.innerHTML=this.renderSc();
@@ -1410,37 +1415,37 @@ const A={
       const pct=totC?Math.round(donC/totC*100):0;
       const open=this.openS.has(pid);
       html+=`<div class="sec">
-        <div class="sec-hdr${open?' open':''}" onclick="A.toggleS('${pid}')">
+        <div class="sec-hdr${open?' open':''}" data-id="${pid}" onclick="A.toggleS('${pid}')">
           <span class="sec-em">${ph.e}</span>
           <div class="sec-info">
             <div class="sec-title">${this.h(ph.t)}</div>
             <div class="sec-sub">${ph.sub}</div>
-            <div class="sec-prog"><div class="pb"><div class="pf" style="width:${pct}%"></div></div><span class="pt">${donC}/${totC}</span></div>
+            <div class="sec-prog"><div class="pb"><div class="pf" id="pf-${pid}" style="width:${pct}%"></div></div><span class="pt" id="pt-${pid}">${donC}/${totC}</span></div>
           </div>
           <span class="sec-arr">▶</span>
         </div>
-        <div class="sec-body${open?' open':''}">`;
+        <div class="sec-body${open?' open':''}" id="sb-${pid}">`;
       for(const mod of ph.mods){
         const mid=pid+'-'+mod.id;
         const items=mod.items||[];
         const donM=items.filter((_,i)=>this.done.has(mid+'-'+i)).length;
         const mopen=this.openM.has(mid);
         html+=`<div class="mod">
-          <div class="mod-hdr${mopen?' open':''}" onclick="A.toggleM('${this.h(mid)}')">
+          <div class="mod-hdr${mopen?' open':''}" data-id="${this.h(mid)}" onclick="A.toggleM('${this.h(mid)}')">
             <span class="mod-title">${this.h(mod.t)}</span>
-            <span class="mod-cnt">${donM}/${items.length}</span>
+            <span class="mod-cnt" id="mc-${this.h(mid)}">${donM}/${items.length}</span>
             <span class="mod-arr">▶</span>
           </div>
-          <div class="mod-items${mopen?' open':''}">`;
+          <div class="mod-items${mopen?' open':''}" id="mi-${this.h(mid)}">`;
         items.forEach((it,i)=>{
           const iid=mid+'-'+i;
           const done=this.done.has(iid);
           const book=this.bk.has(iid);
-          html+=`<div class="item${done?' done':''}" onclick="A.toggleDone('${iid}')">
-            <div class="chk${done?' done':''}">${done?'✓':''}</div>
-            <span class="item-t">${this.h(it)}</span>
-            <button class="bk${book?' on':''}" onclick="event.stopPropagation();A.toggleBk('${iid}','${this.h(it)}','path')" title="Bookmark">🔖</button>
-            <button class="cpy" onclick="event.stopPropagation();A.openSheet('${iid}','${this.h(it)}','path')" title="Copy Prompt">📋</button>
+          html+=`<div class="item${done?' done':''}" data-id="${iid}">
+            <div class="chk${done?' done':''}" onclick="A.toggleDone('${iid}')">${done?'✓':''}</div>
+            <span class="item-t" onclick="A.openSheet('${iid}','${this.h(it)}','path')" style="cursor:pointer">${this.h(it)}</span>
+            <button class="bk${book?' on':''}" onclick="A.toggleBk('${iid}','${this.h(it)}','path')" title="Bookmark">🔖</button>
+            <button class="cpy" onclick="A.openSheet('${iid}','${this.h(it)}','path')" title="Copy Prompt">📋</button>
           </div>`;
         });
         html+=`</div></div>`;
@@ -1476,27 +1481,27 @@ const A={
       const pct=totC?Math.round(donC/totC*100):0;
       const open=this.openS.has(tid);
       html+=`<div class="sec">
-        <div class="sec-hdr${open?' open':''}" onclick="A.toggleS('${tid}')">
+        <div class="sec-hdr${open?' open':''}" data-id="${tid}" onclick="A.toggleS('${tid}')">
           <span class="sec-em">${tp.e}</span>
           <div class="sec-info">
             <div class="sec-title">${tp.ord}. ${this.h(tp.t)}</div>
             <div class="sec-sub">${warmup.length} Warm-up · ${nc.length} NeetCode${prod.length?' · '+prod.length+' Product':''}</div>
-            <div class="sec-prog"><div class="pb"><div class="pf" style="width:${pct}%"></div></div><span class="pt">${donC}/${totC}</span></div>
+            <div class="sec-prog"><div class="pb"><div class="pf" id="pf-${tid}" style="width:${pct}%"></div></div><span class="pt" id="pt-${tid}">${donC}/${totC}</span></div>
           </div>
           <span class="sec-arr">▶</span>
         </div>
-        <div class="sec-body${open?' open':''}">`;
+        <div class="sec-body${open?' open':''}" id="sb-${tid}">`;
       if(warmup.length){
         html+=`<div class="dsa-cat">Warm-Up</div>`;
         warmup.forEach((p,i)=>{
           const iid=tid+'-w-'+i;
           const done=this.done.has(iid);
           const book=this.bk.has(iid);
-          html+=`<div class="item${done?' done':''}" onclick="A.toggleDone('${iid}')">
-            <div class="chk${done?' done':''}">${done?'✓':''}</div>
-            <span class="item-t">${this.h(p)}</span>
-            <button class="bk${book?' on':''}" onclick="event.stopPropagation();A.toggleBk('${iid}','${this.h(p)}','dsa')" title="Bookmark">🔖</button>
-            <button class="cpy" onclick="event.stopPropagation();A.openSheet('${iid}','${this.h(p)}','dsa')" title="Copy Prompt">📋</button>
+          html+=`<div class="item${done?' done':''}" data-id="${iid}">
+            <div class="chk${done?' done':''}" onclick="A.toggleDone('${iid}')">${done?'✓':''}</div>
+            <span class="item-t" onclick="A.openSheet('${iid}','${this.h(p)}','dsa')" style="cursor:pointer">${this.h(p)}</span>
+            <button class="bk${book?' on':''}" onclick="A.toggleBk('${iid}','${this.h(p)}','dsa')" title="Bookmark">🔖</button>
+            <button class="cpy" onclick="A.openSheet('${iid}','${this.h(p)}','dsa')" title="Copy Prompt">📋</button>
           </div>`;
         });
       }
@@ -1509,12 +1514,12 @@ const A={
           const diff=nd[i]||'m';
           const dlbl=diff==='e'?'Easy':diff==='h'?'Hard':'Medium';
           const dcls=diff==='e'?'e':diff==='h'?'h':'m';
-          html+=`<div class="item${done?' done':''}" onclick="A.toggleDone('${iid}')">
-            <div class="chk${done?' done':''}">${done?'✓':''}</div>
-            <span class="item-t">${this.h(p)}</span>
+          html+=`<div class="item${done?' done':''}" data-id="${iid}">
+            <div class="chk${done?' done':''}" onclick="A.toggleDone('${iid}')">${done?'✓':''}</div>
+            <span class="item-t" onclick="A.openSheet('${iid}','${this.h(p)}','dsa')" style="cursor:pointer">${this.h(p)}</span>
             <span class="bdg ${dcls}">${dlbl}</span>
-            <button class="bk${book?' on':''}" onclick="event.stopPropagation();A.toggleBk('${iid}','${this.h(p)}','dsa')" title="Bookmark">🔖</button>
-            <button class="cpy" onclick="event.stopPropagation();A.openSheet('${iid}','${this.h(p)}','dsa')" title="Copy Prompt">📋</button>
+            <button class="bk${book?' on':''}" onclick="A.toggleBk('${iid}','${this.h(p)}','dsa')" title="Bookmark">🔖</button>
+            <button class="cpy" onclick="A.openSheet('${iid}','${this.h(p)}','dsa')" title="Copy Prompt">📋</button>
           </div>`;
         });
       }
@@ -1527,12 +1532,12 @@ const A={
           const diff=pd[i]||'h';
           const dlbl=diff==='e'?'Easy':diff==='h'?'Hard':'Medium';
           const dcls=diff==='e'?'e':diff==='h'?'h':'m';
-          html+=`<div class="item${done?' done':''}" onclick="A.toggleDone('${iid}')">
-            <div class="chk${done?' done':''}">${done?'✓':''}</div>
-            <span class="item-t">${this.h(p)}</span>
+          html+=`<div class="item${done?' done':''}" data-id="${iid}">
+            <div class="chk${done?' done':''}" onclick="A.toggleDone('${iid}')">${done?'✓':''}</div>
+            <span class="item-t" onclick="A.openSheet('${iid}','${this.h(p)}','dsa')" style="cursor:pointer">${this.h(p)}</span>
             <span class="bdg ${dcls}">${dlbl}</span>
-            <button class="bk${book?' on':''}" onclick="event.stopPropagation();A.toggleBk('${iid}','${this.h(p)}','dsa')" title="Bookmark">🔖</button>
-            <button class="cpy" onclick="event.stopPropagation();A.openSheet('${iid}','${this.h(p)}','dsa')" title="Copy Prompt">📋</button>
+            <button class="bk${book?' on':''}" onclick="A.toggleBk('${iid}','${this.h(p)}','dsa')" title="Bookmark">🔖</button>
+            <button class="cpy" onclick="A.openSheet('${iid}','${this.h(p)}','dsa')" title="Copy Prompt">📋</button>
           </div>`;
         });
       }
@@ -1551,26 +1556,26 @@ const A={
       const pct=totQ?Math.round(donQ/totQ*100):0;
       const open=this.openS.has(sid);
       html+=`<div class="sec">
-        <div class="sec-hdr${open?' open':''}" onclick="A.toggleS('${sid}')">
+        <div class="sec-hdr${open?' open':''}" data-id="${sid}" onclick="A.toggleS('${sid}')">
           <span class="sec-em">${sec.e}</span>
           <div class="sec-info">
             <div class="sec-title">${this.h(sec.t)}</div>
             <div class="sec-sub">${totQ} scenario questions</div>
-            <div class="sec-prog"><div class="pb"><div class="pf" style="width:${pct}%"></div></div><span class="pt">${donQ}/${totQ}</span></div>
+            <div class="sec-prog"><div class="pb"><div class="pf" id="pf-${sid}" style="width:${pct}%"></div></div><span class="pt" id="pt-${sid}">${donQ}/${totQ}</span></div>
           </div>
           <span class="sec-arr">▶</span>
         </div>
-        <div class="sec-body${open?' open':''}">`;
+        <div class="sec-body${open?' open':''}" id="sb-${sid}">`;
       sec.q.forEach((q,i)=>{
         const iid=sid+'-'+i;
         const done=this.done.has(iid);
         const book=this.bk.has(iid);
-        html+=`<div class="sc-item${done?' done':''}" onclick="A.toggleDone('${iid}')">
-          <div class="chk${done?' done':''}" style="flex-shrink:0">${done?'✓':''}</div>
-          <span class="sc-txt">${this.h(q)}</span>
+        html+=`<div class="sc-item${done?' done':''}" data-id="${iid}">
+          <div class="chk${done?' done':''}" style="flex-shrink:0" onclick="A.toggleDone('${iid}')">${done?'✓':''}</div>
+          <span class="sc-txt" onclick="A.openSheet('${iid}','${this.h(q)}','sc')" style="cursor:pointer">${this.h(q)}</span>
           <div class="sc-actions">
-            <button class="bk${book?' on':''}" onclick="event.stopPropagation();A.toggleBk('${iid}','${this.h(q).substring(0,80)}...','sc')" title="Bookmark">🔖</button>
-            <button class="cpy" onclick="event.stopPropagation();A.openSheet('${iid}','${this.h(q)}','sc')" title="Copy Prompt">📋</button>
+            <button class="bk${book?' on':''}" onclick="A.toggleBk('${iid}','${this.h(q).substring(0,80)}...','sc')" title="Bookmark">🔖</button>
+            <button class="cpy" onclick="A.openSheet('${iid}','${this.h(q)}','sc')" title="Copy Prompt">📋</button>
           </div>
         </div>`;
       });
@@ -1727,15 +1732,81 @@ const A={
   // ---- TOGGLE ACTIONS ----
   toggleS(id){
     if(this.openS.has(id))this.openS.delete(id);else this.openS.add(id);
-    this.save();this.render();
+    this.save();
+    const hdr=document.querySelector(`.sec-hdr[data-id="${id}"]`);
+    const body=document.getElementById('sb-'+id);
+    if(hdr&&body){hdr.classList.toggle('open');body.classList.toggle('open');}
   },
   toggleM(id){
     if(this.openM.has(id))this.openM.delete(id);else this.openM.add(id);
-    this.save();this.render();
+    this.save();
+    const hdr=document.querySelector(`.mod-hdr[data-id="${id}"]`);
+    const items=document.getElementById('mi-'+id);
+    if(hdr&&items){hdr.classList.toggle('open');items.classList.toggle('open');}
   },
   toggleDone(id){
-    if(this.done.has(id))this.done.delete(id);else this.done.add(id);
-    this.save();this.render();
+    const wasDone=this.done.has(id);
+    if(wasDone)this.done.delete(id);else this.done.add(id);
+    this.save();
+    // Update the item element
+    const el=document.querySelector(`[data-id="${id}"]`);
+    if(el){
+      el.classList.toggle('done',!wasDone);
+      const chk=el.querySelector('.chk');
+      if(chk){chk.classList.toggle('done',!wasDone);chk.textContent=wasDone?'':'✓';}
+    }
+    // Update progress bar for the section this item belongs to
+    this._updateSectionProgress(id);
+  },
+  _updateSectionProgress(itemId){
+    // Determine section id from item id
+    // Path items: pid-p1m0-idx, DSA: tid-w/n/p-idx, Scenario: sid-idx
+    // Find section id by looking at which section contains this item
+    // Try path: pid = first segment
+    const parts=itemId.split('-');
+    // Try section ids
+    const tryIds=[
+      parts[0],                          // e.g. p1, d1, s1
+      parts[0]+'-'+parts[1]              // e.g. p1-p1m0
+    ];
+    for(const sid of tryIds){
+      const pf=document.getElementById('pf-'+sid);
+      const pt=document.getElementById('pt-'+sid);
+      if(pf&&pt){
+        // Count done vs total for this section
+        const items=document.querySelectorAll(`#sb-${sid} [data-id]`);
+        if(items.length){
+          let don=0;
+          items.forEach(it=>{if(this.done.has(it.dataset.id))don++;});
+          const pct=Math.round(don/items.length*100);
+          pf.style.width=pct+'%';
+          pt.textContent=don+'/'+items.length;
+        }
+        // Also update module count if applicable
+        const mc=document.getElementById('mc-'+sid);
+        if(mc){
+          const mitems=document.querySelectorAll(`#mi-${sid} [data-id]`);
+          if(mitems.length){
+            let dmc=0;
+            mitems.forEach(it=>{if(this.done.has(it.dataset.id))dmc++;});
+            mc.textContent=dmc+'/'+mitems.length;
+          }
+        }
+      }
+    }
+    // Update module count for path items (mid = parts[0]+'-'+parts[1]+'-'+parts[2] without last part)
+    if(parts.length>=3){
+      const mid=parts.slice(0,-1).join('-');
+      const mc=document.getElementById('mc-'+mid);
+      if(mc){
+        const mitems=document.querySelectorAll(`#mi-${mid} [data-id]`);
+        if(mitems.length){
+          let dmc=0;
+          mitems.forEach(it=>{if(this.done.has(it.dataset.id))dmc++;});
+          mc.textContent=dmc+'/'+mitems.length;
+        }
+      }
+    }
   },
   toggleBk(id,title,type){
     if(this.bk.has(id)){
@@ -1745,7 +1816,10 @@ const A={
       this.bk.add(id);
       try{localStorage.setItem('sb_bk_'+id,JSON.stringify({title,type}));}catch(e){}
     }
-    this.save();this.render();
+    this.save();
+    // Update bookmark button appearance without re-render
+    const el=document.querySelector(`[data-id="${id}"]`);
+    if(el){const bk=el.querySelector('.bk');if(bk)bk.classList.toggle('on',this.bk.has(id));}
   },
   setDsaFilter(f){
     this.dsaFilter=f;this.render();
